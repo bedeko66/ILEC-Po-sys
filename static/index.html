@@ -14,8 +14,65 @@
 
 <body>
     <div class="container">
+
         <div class="process-loader"></div>
+
+        <hr class="horizontalLine">
+        <section class="purchase-order-form center">
+            <h1>Purchase Order</h1>
+            <form>
+                <h5>Delivery address: Ibis Earls Court Hotel/Cockpit Hotel Limited/- 47 Lillie Road London SW6 1UD</h5>
+                <h6>Reg. No.:3405105, VAT reg. no.: 701 5349 65</h6>
+                <fieldset>
+                    <div class="align-horizontaly">
+                        <label class="po-ref" for="po-ref">PO Id </label>
+                        <input style="width: 350px;" class="po-ref" type="text" id="po-ref" name="po-ref">
+                    </div>
+
+                    <div class="align-horizontaly">
+                        <label for="supplier">Supplier</label>
+                        <input style="width: 350px;" type="text" id="supplier" name="supplier">
+                    </div>
+
+                    <div class="align-horizontaly">
+                        <label>Attention of</label>
+                        <input style="width: 350px;" type="text" class="attention" id="attention" name="attention" required>
+                    </div>
+
+                    <div class="align-horizontaly">
+                        <label>Department</label>
+                        <select style="width: 350px;" name="department" id="department">
+                          <option value="reception">Reception</option>
+                          <option value="housekeeping">Housekeeping</option>
+                          <option value="FoodandBeverage">Food and Beverage</option>
+                          <option value="Sales">Sales</option>
+                          <option value="Maintenance">Maintenance</option>
+                          <option value="accounts">Accounts</option>
+                        </select>
+                        <!-- <input style="width: 350px;" type="text" class="department" id="department" name="department"> -->
+                    </div>
+
+
+                    <div class="align-horizontaly">
+                        <label for="order-date">Order Date</label>
+                        <input style="width: 350px;" type="text" id="order-date" name="order-date" required>
+                    </div>
+
+                    <div class="align-horizontaly">
+                        <label for="description">Description</label>
+                        <textarea style="width: 350px;" id="description"></textarea>
+                    </div>
+
+                    <input class="button-primary center" type="submit" value="Generate Po">
+
+                </fieldset>
+            </form>
+
+        </section>
+
+        <hr class="horizontalLine">
         <section class="pdf-viewer">
+            <h1 style="text-align: center;">Invoice</h1>
             <div class="top-bar">
                 <button class="btn" id="prev-page">
               <i class="fas fa-arrow-circle-left"></i> Prev Page
@@ -30,8 +87,10 @@
             <canvas id="pdf-render"></canvas>
         </section>
 
+        <hr class="horizontalLine">
+
         <section class="signature">
-            <h2>Validate invoice with your signature</h2>
+            <h3>Validate invoice with your signature</h3>
             <canvas id="canvas"></canvas>
             <div class="controls">
                 <button onclick="clearCanvas()">Clear</button>

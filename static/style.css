@@ -1,11 +1,33 @@
-#canvas {
-    border: 1px solid rebeccapurple;
-    border-radius: 5px;
-    background-color: black;
+/* Purcase Order Section */
+
+label {
+    display: inline-block;
+    width: 140px;
+    text-align: right;
+}
+
+​ .align-horizontaly {
+    display: flex;
+}
+
+.center {
+    text-align: center;
 }
 
 
 /* Pdf viewer */
+
+.pdf-viewer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.signature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
 .top-bar {
     background: #333;
@@ -36,6 +58,21 @@
     padding: 1rem;
 }
 
+.horizontalLine {
+    border: none;
+    border-bottom: 1px solid gainsboro;
+}
+
+
+/* Signature canvas */
+
+#canvas {
+    border: 1px solid rebeccapurple;
+    border-radius: 5px;
+    background-color: black;
+    color: white;
+}
+
 
 /* Preloader */
 
@@ -46,7 +83,7 @@
     right: 0;
     margin-left: auto;
     margin-right: auto;
-    top: 40vh;
+    bottom: 50vh;
     background: transparent;
     z-index: 999999;
     opacity: 0.8;

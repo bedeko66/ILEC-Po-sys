@@ -22,11 +22,19 @@ window.addEventListener('load', () => {
     }
 
     function draw(e) {
+        const timeElapsed = Date.now();
+        const today = new Date(timeElapsed);
+        ctx.textBaseline = 'Top';
+        ctx.fillStyle = 'white';
+        ctx.fillText(`signed by -Laszlo Bedekovics at ${today}`, (canvas.width / 15), (canvas.height / 4));
+
         if (!painting) return;
         ctx.lineWidth = 3;
         ctx.lineCap = "round";
         ctx.strokeStyle = 'white';
-        var rect = canvas.getBoundingClientRect();
+
+
+        let rect = canvas.getBoundingClientRect();
         ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top)
         ctx.stroke();
         ctx.beginPath();
@@ -46,6 +54,12 @@ function clearCanvas() {
 
 function downloadCanvas() {
     let signo = document.getElementById('canvas').toDataURL("image/png");
+
+    // const timeElapsed = Date.now();
+    // const today = new Date(timeElapsed);
+    // // ctx.textBaseline = 'Top';
+    // ctx.fillStyle = 'white';
+    // ctx.fillText(`Laszlo Bedekovics ${today}`, (canvas.width / 4), (canvas.height / 4));
 
     $.ajax({
         type: "POST",
