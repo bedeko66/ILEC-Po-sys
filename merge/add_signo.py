@@ -14,7 +14,7 @@ def convert_png_signo_to_pdf():
         im = im.convert('RGB')
         im_invert = ImageOps.invert(im)
 
-        newsize = (100, 50) 
+        newsize = (150, 60) 
         im_invert = im_invert.resize(newsize) 
         im_invert.save(pdf_path,"PDF")
 
