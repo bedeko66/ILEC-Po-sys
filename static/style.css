@@ -1,0 +1,82 @@
+#canvas {
+    border: 1px solid rebeccapurple;
+    border-radius: 5px;
+    background-color: black;
+}
+
+
+/* Pdf viewer */
+
+.top-bar {
+    background: #333;
+    color: #fff;
+    padding: 1rem;
+}
+
+.btn {
+    background: purple;
+    color: #fff;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0.7rem 2rem;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.page-info {
+    margin-left: 1rem;
+}
+
+.error {
+    background: orangered;
+    color: #fff;
+    padding: 1rem;
+}
+
+
+/* Preloader */
+
+.process-loader {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    top: 40vh;
+    background: transparent;
+    z-index: 999999;
+    opacity: 0.8;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid purple;
+    width: 120px;
+    height: 120px;
+    -webkit-animation: spin 2s linear infinite;
+    /* Safari */
+    animation: spin 2s linear infinite;
+}
+
+
+/* Safari */
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
