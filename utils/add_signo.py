@@ -22,9 +22,16 @@ def convert_png_signo_to_pdf():
 
 
 def add_signo_to_invoice(pageNum):
-    input_file = "/home/bedeko/dev/po-proj/static/uploads/merged.pdf"
+    if pageNum == 0:
+        input_file_src = 'merged.pdf'
+        output_file_src = 'output.pdf'
+    else:
+        input_file_src = 'output.pdf'
+        output_file_src = 'output2.pdf'
+    
+    input_file = f"/home/bedeko/dev/po-proj/static/uploads/{input_file_src}"
     watermark = "/home/bedeko/dev/po-proj/static/uploads/signo.pdf"
-    output_file = "/home/bedeko/dev/po-proj/static/uploads/output.pdf"
+    output_file = f"/home/bedeko/dev/po-proj/static/uploads/{output_file_src}"
 
     with open(input_file, 'rb') as inputfile:
         pdf = PyPDF2.PdfFileReader(inputfile)

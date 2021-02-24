@@ -4,10 +4,19 @@ let poSigned = false;
 let invoiceSigned = false;
 
 // Pdf viewer
-const canvas2 = document.querySelector('#pdf-render');
-const ctx2 = canvas2.getContext('2d');
+const c2 = document.querySelector('#pdf-render');
+const context2 = c2.getContext('2d');
 
-const pdfViewer = url => {
+const c3 = document.querySelector('#pdf-render2');
+const context3 = c3.getContext('2d');
+
+const c4 = document.querySelector('#pdf-render3');
+const context4 = c4.getContext('2d');
+
+const c5 = document.querySelector('#pdf-render4');
+const context5 = c5.getContext('2d');
+
+function pdfViewer(url, canvas2, ctx2) {
 
     let pdfDoc = null,
         pageNum = 1,
@@ -24,10 +33,11 @@ const pdfViewer = url => {
         pdfDoc.getPage(num).then(page => {
             // Set scale
             const viewport = page.getViewport({ scale });
+
             canvas2.height = viewport.height;
             canvas2.width = viewport.width;
 
-            const renderCtx = {
+            let renderCtx = {
                 canvasContext: ctx2,
                 viewport
             };
@@ -73,11 +83,6 @@ const pdfViewer = url => {
         queueRenderPage(pageNum);
     };
 
-    // Get Document
-    if (pdfDoc) {
-        console.log('destroy');
-        pdfDoc.destroy();
-    }
 
     pdfjsLib
         .getDocument(url)
@@ -105,7 +110,7 @@ const pdfViewer = url => {
 
 }
 let view_invoice = '/uploads/orig_invoice.pdf';
-pdfViewer(view_invoice)
+pdfViewer(view_invoice, c2, context2)
 
 //-------------------------------------------------------------
 // Save po to pdf
@@ -128,14 +133,14 @@ function savePo() {
             purchaseOrder
         }
     }).done(function(o) {
-        setTimeout(function() {
-            pdfViewer('/uploads/merged.pdf')
-            purchaseOrderFilled = true
-            statusControl()
-            $('.process-loader').fadeOut('slow')
-        }, 3000);
+        purchaseOrderFilled = true
+        statusControl()
     });
 
+    setTimeout(function() {
+        pdfViewer('/uploads/merged.pdf', c3, context3)
+        $('.process-loader').fadeOut('slow')
+    }, 3000);
 
 }
 //----------------------------------------------------
@@ -210,14 +215,15 @@ function addSignatureToPo() {
             invoicePageNum: 0
         }
     }).done(function(o) {
-        setTimeout(function() {
-            pdfViewer('/uploads/output.pdf')
-            poSigned = true;
-            statusControl()
-            clearCanvas()
-            $('.process-loader').fadeOut('slow')
-        }, 3000);
+        poSigned = true;
+        statusControl()
     });
+
+    setTimeout(function() {
+        clearCanvas()
+        pdfViewer('/uploads/output.pdf', c4, context4)
+        $('.process-loader').fadeOut('slow')
+    }, 3000);
 }
 
 function addSignatureToInvoice() {
@@ -232,14 +238,14 @@ function addSignatureToInvoice() {
             invoicePageNum: 1
         }
     }).done(function(o) {
-        setTimeout(function() {
-            pdfViewer('/uploads/output.pdf')
-            invoiceSigned = true;
-            statusControl()
-            clearCanvas()
-            $('.process-loader').fadeOut('slow')
-        }, 3000);
+        invoiceSigned = true;
+        statusControl()
     });
+    setTimeout(function() {
+        clearCanvas()
+        pdfViewer('/uploads/output2.pdf', c5, context5)
+        $('.process-loader').fadeOut('slow')
+    }, 3000);
 }
 
 function validateDocs() {
@@ -250,6 +256,10 @@ function validateDocs() {
 
 //-------------------------------------------------------------
 // Status Controller
+function reloadPage() {
+    location.reload();
+    return false;
+}
 
 function resetStatus() {
 
@@ -268,6 +278,7 @@ function statusControl() {
 
     if (purchaseOrderFilled) {
 
+        $('#pdf-render').hide()
         $('.purchase-order-form').hide()
         $('#process-msg').text('');
         $('#process-msg').append('Step 2-> Validate Purchase Order with your e-signature!')
@@ -278,12 +289,14 @@ function statusControl() {
 
     if (signoPanelDisplayed) {
         if (poSigned) {
+            $('#pdf-render2').hide()
             $('#process-msg').text('');
-            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! /on 2nd page ')
+            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! =>on 2nd page ')
             $('#po-sign-btn').hide()
             $('#invoice-sign-btn').show()
         }
         if (invoiceSigned) {
+            $('#pdf-render3').hide()
             $('#process-msg').text('');
             $('#process-msg').append('4. Review and approve your Documents!')
             $('#invoice-sign-btn').hide()
