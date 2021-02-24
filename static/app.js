@@ -1,12 +1,153 @@
+let purchaseOrderFilled = false;
+let signoPanelDisplayed = false;
+let poSigned = false;
+let invoiceSigned = false;
+
+// Pdf viewer
+const canvas2 = document.querySelector('#pdf-render');
+const ctx2 = canvas2.getContext('2d');
+
+const pdfViewer = url => {
+
+    let pdfDoc = null,
+        pageNum = 1,
+        pageIsRendering = false,
+        pageNumIsPending = null;
+
+    const scale = 1
+
+    // Render the page
+    const renderPage = num => {
+        pageIsRendering = true;
+
+        // Get page
+        pdfDoc.getPage(num).then(page => {
+            // Set scale
+            const viewport = page.getViewport({ scale });
+            canvas2.height = viewport.height;
+            canvas2.width = viewport.width;
+
+            const renderCtx = {
+                canvasContext: ctx2,
+                viewport
+            };
+
+            page.render(renderCtx).promise.then(() => {
+                pageIsRendering = false;
+
+                if (pageNumIsPending !== null) {
+                    renderPage(pageNumIsPending);
+                    pageNumIsPending = null;
+                }
+            });
+
+            // Output current page
+            document.querySelector('#page-num').textContent = num;
+        });
+    };
+
+    // Check for pages rendering
+    const queueRenderPage = num => {
+        if (pageIsRendering) {
+            pageNumIsPending = num;
+        } else {
+            renderPage(num);
+        }
+    };
+
+    // Show Prev Page
+    const showPrevPage = () => {
+        if (pageNum <= 1) {
+            return;
+        }
+        pageNum--;
+        queueRenderPage(pageNum);
+    };
+
+    // Show Next Page
+    const showNextPage = () => {
+        if (pageNum >= pdfDoc.numPages) {
+            return;
+        }
+        pageNum++;
+        queueRenderPage(pageNum);
+    };
+
+    // Get Document
+    if (pdfDoc) {
+        console.log('destroy');
+        pdfDoc.destroy();
+    }
+
+    pdfjsLib
+        .getDocument(url)
+        .promise.then(pdfDoc_ => {
+
+            pdfDoc = pdfDoc_;
+
+            document.querySelector('#page-count').textContent = pdfDoc.numPages;
+
+            renderPage(pageNum);
+        })
+        .catch(err => {
+            // Display error
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.appendChild(document.createTextNode(err.message));
+            document.querySelector('body').insertBefore(div, canvas2);
+            // Remove top bar
+            document.querySelector('.top-bar').style.display = 'none';
+        });
+
+    // Button Events
+    document.querySelector('#prev-page').addEventListener('click', showPrevPage);
+    document.querySelector('#next-page').addEventListener('click', showNextPage);
+
+}
+let view_invoice = '/uploads/orig_invoice.pdf';
+pdfViewer(view_invoice)
+
+//-------------------------------------------------------------
+// Save po to pdf
+function savePo() {
+    $('.process-loader').fadeIn('slow')
+
+    let purchaseOrder = {
+        poId: $('#po-ref').val(),
+        supplier: $('#supplier').val(),
+        attention: $('#attention').val(),
+        department: $('#department option:selected').text(),
+        orderDate: $('#order-date').val(),
+        description: $('#description').val()
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/generate-purchase-order",
+        data: {
+            purchaseOrder
+        }
+    }).done(function(o) {
+        setTimeout(function() {
+            pdfViewer('/uploads/merged.pdf')
+            purchaseOrderFilled = true
+            statusControl()
+            $('.process-loader').fadeOut('slow')
+        }, 3000);
+    });
+
+
+}
+//----------------------------------------------------
+// Add Signature to docs
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
-let url = '/uploads/sample.pdf';
 
 window.addEventListener('load', () => {
 
     canvas.height = window.innerHeight / 8;
-    canvas.width = window.innerWidth / 3;
+    canvas.width = window.innerWidth / 2;
 
     let painting = false;
 
@@ -23,13 +164,10 @@ window.addEventListener('load', () => {
 
 
     function draw(e) {
-        const timeElapsed = Date.now();
-        const today = new Date(timeElapsed);
 
         ctx.textBaseline = 'Top';
         ctx.fillStyle = 'white';
         ctx.font = 'Regular 35px Sans-Serif';
-        ctx.fillText(`signed by -Laszlo Bedekovics at ${today}`, (canvas.width / 15), (canvas.height / 4));
 
         if (!painting) return;
         ctx.lineWidth = 3;
@@ -54,118 +192,104 @@ function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
+function addSignatureToPo() {
 
-function downloadCanvas() {
+    $('.process-loader').fadeIn('slow')
+
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+    ctx.fillText(`signed by -Laszlo Bedekovics at ${today}`, (canvas.width / 15), (canvas.height / 4));
+
     let signo = document.getElementById('canvas').toDataURL("image/png");
 
     $.ajax({
         type: "POST",
         url: "/getsigno",
         data: {
-            imgBase64: signo
+            signo,
+            invoicePageNum: 0
         }
     }).done(function(o) {
-        console.log('saved');
-
+        setTimeout(function() {
+            pdfViewer('/uploads/output.pdf')
+            poSigned = true;
+            statusControl()
+            clearCanvas()
+            $('.process-loader').fadeOut('slow')
+        }, 3000);
     });
 }
 
-document.getElementById('upload').addEventListener('click', function() {
+function addSignatureToInvoice() {
     $('.process-loader').fadeIn('slow')
-    downloadCanvas();
-    setTimeout(function() {
-        window.location.reload()
-    }, 3000);
-}, false);
+    let signo = document.getElementById('canvas').toDataURL("image/png");
 
-// Pdf viewer
-
-let pdfDoc = null,
-    pageNum = 1,
-    pageIsRendering = false,
-    pageNumIsPending = null;
-
-const scale = 1,
-    canvas2 = document.querySelector('#pdf-render'),
-    ctx2 = canvas2.getContext('2d');
-
-// Render the page
-const renderPage = num => {
-    pageIsRendering = true;
-
-    // Get page
-    pdfDoc.getPage(num).then(page => {
-        // Set scale
-        const viewport = page.getViewport({ scale });
-        canvas2.height = viewport.height;
-        canvas2.width = viewport.width;
-
-        const renderCtx = {
-            canvasContext: ctx2,
-            viewport
-        };
-
-        page.render(renderCtx).promise.then(() => {
-            pageIsRendering = false;
-
-            if (pageNumIsPending !== null) {
-                renderPage(pageNumIsPending);
-                pageNumIsPending = null;
-            }
-        });
-
-        // Output current page
-        document.querySelector('#page-num').textContent = num;
+    $.ajax({
+        type: "POST",
+        url: "/getsigno",
+        data: {
+            signo,
+            invoicePageNum: 1
+        }
+    }).done(function(o) {
+        setTimeout(function() {
+            pdfViewer('/uploads/output.pdf')
+            invoiceSigned = true;
+            statusControl()
+            clearCanvas()
+            $('.process-loader').fadeOut('slow')
+        }, 3000);
     });
-};
+}
 
-// Check for pages rendering
-const queueRenderPage = num => {
-    if (pageIsRendering) {
-        pageNumIsPending = num;
-    } else {
-        renderPage(num);
+function validateDocs() {
+    alert('Thank you')
+    resetStatus()
+    $('form :input').val('');
+}
+
+//-------------------------------------------------------------
+// Status Controller
+
+function resetStatus() {
+
+    purchaseOrderFilled = false;
+    signoPanelDisplayed = false;
+    poSigned = false;
+    invoiceSigned = false;
+    $('.purchase-order-form').show()
+    $('.signature').hide()
+    $('#po-sign-btn').show()
+    $('#invoice-sign-btn').hide()
+
+}
+
+function statusControl() {
+
+    if (purchaseOrderFilled) {
+
+        $('.purchase-order-form').hide()
+        $('#process-msg').text('');
+        $('#process-msg').append('Step 2-> Validate Purchase Order with your e-signature!')
+        signoPanelDisplayed = true
+        $('.signature').show()
+
     }
-};
 
-// Show Prev Page
-const showPrevPage = () => {
-    if (pageNum <= 1) {
-        return;
+    if (signoPanelDisplayed) {
+        if (poSigned) {
+            $('#process-msg').text('');
+            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! /on 2nd page ')
+            $('#po-sign-btn').hide()
+            $('#invoice-sign-btn').show()
+        }
+        if (invoiceSigned) {
+            $('#process-msg').text('');
+            $('#process-msg').append('4. Review and approve your Documents!')
+            $('#invoice-sign-btn').hide()
+            $('.signature').hide()
+            $('.validate-docs').show()
+        }
+
     }
-    pageNum--;
-    queueRenderPage(pageNum);
-};
-
-// Show Next Page
-const showNextPage = () => {
-    if (pageNum >= pdfDoc.numPages) {
-        return;
-    }
-    pageNum++;
-    queueRenderPage(pageNum);
-};
-
-// Get Document
-pdfjsLib
-    .getDocument(url)
-    .promise.then(pdfDoc_ => {
-        pdfDoc = pdfDoc_;
-
-        document.querySelector('#page-count').textContent = pdfDoc.numPages;
-
-        renderPage(pageNum);
-    })
-    .catch(err => {
-        // Display error
-        const div = document.createElement('div');
-        div.className = 'error';
-        div.appendChild(document.createTextNode(err.message));
-        document.querySelector('body').insertBefore(div, canvas);
-        // Remove top bar
-        document.querySelector('.top-bar').style.display = 'none';
-    });
-
-// Button Events
-document.querySelector('#prev-page').addEventListener('click', showPrevPage);
-document.querySelector('#next-page').addEventListener('click', showNextPage);
+}

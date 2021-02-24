@@ -14,10 +14,24 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/getsigno', function(req, res) {
-    let base64Data = req.body.imgBase64.replace(/^data:image\/png;base64,/, "");
 
-    fs.writeFile('static/uploads/signo.png', base64Data, 'base64', function(err) {
+app.post('/generate-purchase-order', function(req, res) {
+    let purchaseOrder = JSON.stringify(req.body.purchaseOrder);
+    const { spawn } = require('child_process');
+
+    const poPdfpy = spawn('python3', ['/home/bedeko/dev/po-proj/utils/po_to_pdf_merge.py', purchaseOrder]);
+    poPdfpy.stdout.on('data', function(data) {
+        console.log(data.toString());
+        res.write(data);
+        res.end('end');
+    });
+
+})
+
+app.post('/getsigno', function(req, res) {
+    let signature = req.body.signo.replace(/^data:image\/png;base64,/, "");
+
+    fs.writeFile('static/uploads/signo.png', signature, 'base64', function(err) {
         if (err) {
             console.log(err);
         }
@@ -25,7 +39,7 @@ app.post('/getsigno', function(req, res) {
 
     // Run python
     const { spawn } = require('child_process');
-    const pyProg = spawn('python3', ['/home/bedeko/dev/po-proj/merge/add_signo.py']);
+    const pyProg = spawn('python3', ['/home/bedeko/dev/po-proj/utils/add_signo.py', req.body.invoicePageNum]);
 
     pyProg.stdout.on('data', function(data) {
 

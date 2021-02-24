@@ -1,0 +1,1 @@
+/home/bedeko/dev/po-proj/static/purchase-order.pdf

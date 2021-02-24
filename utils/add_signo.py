@@ -1,3 +1,4 @@
+import sys
 import PyPDF2
 from PIL import Image, ImageOps
 
@@ -19,10 +20,11 @@ def convert_png_signo_to_pdf():
         im_invert.save(pdf_path,"PDF")
 
 
-def add_signo_to_invoice():
-    input_file = "/home/bedeko/dev/po-proj/static/uploads/sample.pdf"
+
+def add_signo_to_invoice(pageNum):
+    input_file = "/home/bedeko/dev/po-proj/static/uploads/merged.pdf"
     watermark = "/home/bedeko/dev/po-proj/static/uploads/signo.pdf"
-    output_file = "/home/bedeko/dev/po-proj/static/uploads/sample.pdf"
+    output_file = "/home/bedeko/dev/po-proj/static/uploads/output.pdf"
 
     with open(input_file, 'rb') as inputfile:
         pdf = PyPDF2.PdfFileReader(inputfile)
@@ -30,19 +32,19 @@ def add_signo_to_invoice():
         with open(watermark, 'rb') as watermark_file:
             watermarkpdf = PyPDF2.PdfFileReader(watermark_file)
 
-            p = pdf.getPage(0)
-
+            p = pdf.getPage(pageNum)
             w = watermarkpdf.getPage(0)
-
             p.mergePage(w)
-
             pdfwriter = PyPDF2.PdfFileWriter()
-
             pdfwriter.addPage(p)
+   
+            for i in range(pdf.getNumPages()):
+                if not i == pageNum:
+                    pdfwriter.addPage(pdf.getPage(i))
 
             with open(output_file, 'wb') as output_filecontent:
                 pdfwriter.write(output_filecontent)
 
-
+docs_type = int(sys.argv[1])
 convert_png_signo_to_pdf()
-add_signo_to_invoice()
+add_signo_to_invoice(docs_type)
