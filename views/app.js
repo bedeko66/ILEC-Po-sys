@@ -249,9 +249,10 @@ function addSignatureToInvoice() {
 }
 
 function validateDocs() {
-    alert('Thank you')
+    location.assign('/dashboard')
     resetStatus()
     $('form :input').val('');
+    alert('Well done! Thank you')
 }
 
 //-------------------------------------------------------------
@@ -291,7 +292,7 @@ function statusControl() {
         if (poSigned) {
             $('#pdf-render2').hide()
             $('#process-msg').text('');
-            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! =>on 2nd page ')
+            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! => on 2nd page ')
             $('#po-sign-btn').hide()
             $('#invoice-sign-btn').show()
         }

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.7.570/pdf_viewer.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="style.css">
+    <title>Invoice Validation</title>
+</head>
+
+<body>
+    <section class="header center">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand"><img width="30px" height="auto" src="<%= user.picture %>" alt="User avatar"><%= user.name %> </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard <span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/invoice-validator">Invoice Validator <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Sign Out</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+    </section>
+    <div class="container">
+        <div class="process-loader"></div>
+
+        <h4 id="process-msg">Step 1-> Fill out your Purchase Order for below Invoice!</h4>
+        <hr class="horizontalLine">
+
+        <section class="purchase-order-form center">
+            <h3>Purchase Order</h3>
+            <form>
+                <fieldset>
+                    <p>Delivery address- Ibis Earls Court Hotel/Cockpit Hotel Limited/- 47 Lillie Road London SW6 1UD</p>
+                    <p>Reg. No.:3405105, VAT reg. no.: 701 5349 65</p>
+                    <div class="align-horizontaly m-3">
+                        <label class="po-ref" for="po-ref">PO Id </label>
+                        <input style="width: 350px;" class="po-ref" type="text" id="po-ref" name="po-ref">
+                    </div>
+
+                    <div class="align-horizontaly m-3">
+                        <label for="supplier">Supplier</label>
+                        <input style="width: 350px;" type="text" id="supplier" name="supplier">
+                    </div>
+
+                    <div class="align-horizontaly m-3">
+                        <label>Attention of</label>
+                        <input style="width: 350px;" type="text" class="attention" id="attention" name="attention" required>
+                    </div>
+
+                    <div class="align-horizontaly m-3">
+                        <label>Department</label>
+                        <select style="width: 350px;" name="department" id="department">
+                          <option value="reception">Reception</option>
+                          <option value="housekeeping">Housekeeping</option>
+                          <option value="foodandBeverage">Food and Beverage</option>
+                          <option value="sales">Sales</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="accounts">Accounts</option>
+                        </select>
+                        <!-- <input style="width: 350px;" type="text" class="department" id="department" name="department"> -->
+                    </div>
+
+
+                    <div class="align-horizontaly m-3">
+                        <label for="order-date">Order Date</label>
+                        <input style="width: 350px;" type="text" id="order-date" name="order-date" required>
+                    </div>
+
+                    <div class="align-horizontaly m-3">
+                        <label name="description" class="description" for="description">Description</label>
+                        <textarea style="width: 350px;" id="description"></textarea>
+                    </div>
+
+                    <button type="button" onclick="savePo()" id="save-po" class="button-primary center"> Generate Po for below Invoice</button>
+                </fieldset>
+            </form>
+        </section>
+
+        <section class="signature center">
+            <canvas id="canvas"></canvas>
+            <div class="controls">
+                <button type="button" id="po-sign-btn" onclick="addSignatureToPo()">Sign for Purchase Order</button>
+                <button type="button" id="invoice-sign-btn" onclick="addSignatureToInvoice()">Sign for Invoice</button>
+                <button type="button" onclick="clearCanvas()">Clear</button>
+            </div>
+        </section>
+
+        <section class="validate-docs center">
+            <button type="button" id="validate-docs-btn" onclick="validateDocs()">Validate</button>
+            <button type="button" id="validate-docs-btn" onclick="reloadPage()">Back</button>
+        </section>
+
+        <hr class="horizontalLine">
+
+        <section class="pdf-viewer">
+            <h3>Your Documents</h3>
+            <div class="top-bar">
+                <button class="btn" id="prev-page">
+                    <i class="fas fa-arrow-circle-left"></i> Prev Page
+                </button>
+                <button class="btn" id="next-page">
+                    Next Page <i class="fas fa-arrow-circle-right"></i>
+                </button>
+                <span class="page-info">
+                    Page <span id="page-num"></span> of <span id="page-count"></span>
+                </span>
+            </div>
+            <canvas id="pdf-render"></canvas>
+            <canvas id="pdf-render2"></canvas>
+            <canvas id="pdf-render3"></canvas>
+            <canvas id="pdf-render4"></canvas>
+        </section>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="build/pdf.js"></script>
+    <!-- <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
