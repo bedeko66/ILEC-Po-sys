@@ -18,7 +18,7 @@ def save_purchase_order_to_pdf(purchase_order):
                         <p>Order Date: {purchase_order['orderDate']}</p>
                         <p>Description: {purchase_order['description']}</p>"""
 
-        pdfkit.from_string(po_template, '/home/bedeko/dev/po-proj/static/uploads/purchase-order.pdf') 
+        pdfkit.from_string(po_template, '/home/bedeko/dev/po-proj/static/templates/purchase-order.pdf') 
     
     except:
         raise Exception("error while loading argument")
@@ -36,7 +36,7 @@ def add_to_writer(pdf, writer):
         writer.addPage(pdf.getPage(i))
 
 def merge_po_with_invoice():
-    pdf_dir = "/home/bedeko/dev/po-proj/static/uploads/"
+    pdf_dir = "/home/bedeko/dev/po-proj/static/templates/"
     invoice = load_pdf(pdf_dir + 'orig_invoice.pdf') 
     po = load_pdf(pdf_dir + 'purchase-order.pdf')
 
