@@ -2,7 +2,8 @@ let purchaseOrderFilled = false;
 let signoPanelDisplayed = false;
 let poSigned = false;
 let invoiceSigned = false;
-
+const user = document.getElementById("user").innerText;
+let signed_at;
 // Pdf viewer
 const c2 = document.querySelector('#pdf-render');
 const context2 = c2.getContext('2d');
@@ -109,7 +110,7 @@ function pdfViewer(url, canvas2, ctx2) {
     document.querySelector('#next-page').addEventListener('click', showNextPage);
 
 }
-let view_invoice = '/templates/orig_invoice.pdf';
+let view_invoice = '../static/templates/orig_invoice.pdf';
 pdfViewer(view_invoice, c2, context2)
 
 //-------------------------------------------------------------
@@ -138,7 +139,7 @@ function savePo() {
     });
 
     setTimeout(function() {
-        pdfViewer('/templates/merged.pdf', c3, context3)
+        pdfViewer('../static/templates/merged.pdf', c3, context3)
         $('.process-loader').fadeOut('slow')
     }, 3000);
 
@@ -201,10 +202,6 @@ function addSignatureToPo() {
 
     $('.process-loader').fadeIn('slow')
 
-    const timeElapsed = Date.now();
-    const today = new Date(timeElapsed);
-    ctx.fillText(`signed by -Laszlo Bedekovics at ${today}`, (canvas.width / 15), (canvas.height / 4));
-
     let signo = document.getElementById('canvas').toDataURL("image/png");
 
     $.ajax({
@@ -221,13 +218,18 @@ function addSignatureToPo() {
 
     setTimeout(function() {
         clearCanvas()
-        pdfViewer('/templates/output.pdf', c4, context4)
+        pdfViewer('../static/templates/output.pdf', c4, context4)
         $('.process-loader').fadeOut('slow')
     }, 3000);
 }
 
 function addSignatureToInvoice() {
     $('.process-loader').fadeIn('slow')
+
+    const timeElapsed = Date.now();
+    signed_at = new Date(timeElapsed);
+    ctx.fillText(`signed by -${user} at ${signed_at}`, (canvas.width / 15), (canvas.height / 4));
+
     let signo = document.getElementById('canvas').toDataURL("image/png");
 
     $.ajax({
@@ -243,16 +245,51 @@ function addSignatureToInvoice() {
     });
     setTimeout(function() {
         clearCanvas()
-        pdfViewer('/templates/output2.pdf', c5, context5)
+        pdfViewer('../static/templates/output2.pdf', c5, context5)
         $('.process-loader').fadeOut('slow')
     }, 3000);
 }
 
 function validateDocs() {
+    let id = $('.validate').attr('id').split('_')[0];
+    let filename = $('.validate').attr('id').split('_')[1];
+
+    let purchaseOrder = {
+        supplier: $('#supplier').val(),
+        manager: $('#attention').val(),
+        department: $('#department option:selected').text(),
+        orderDate: $('#order-date').val(),
+        description: $('#description').val(),
+        validated: 'true',
+        status: 'accepted',
+        invoice_signed_by: user,
+        invoice_signed_at: signed_at
+    }
+
     location.assign('/dashboard')
-    resetStatus()
-    $('form :input').val('');
-    alert('Well done! Thank you')
+
+    $.ajax({
+        type: "PUT",
+        url: `/invoice/${id}`,
+        data: {
+            purchaseOrder
+        }
+    }).done(function(o) {
+        $.ajax({
+                type: "POST",
+                url: "/copy",
+                data: {
+                    src: 'static/templates/output2.pdf',
+                    dest: 'static/validated/' + filename
+                }
+            })
+            // resetStatus()
+            // $('form :input').val('');
+            // alert('Well done! Thank you')
+    });
+    //copy
+
+
 }
 
 //-------------------------------------------------------------
@@ -292,7 +329,7 @@ function statusControl() {
         if (poSigned) {
             $('#pdf-render2').hide()
             $('#process-msg').text('');
-            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! => on 2nd page ')
+            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! - on 2nd page ')
             $('#po-sign-btn').hide()
             $('#invoice-sign-btn').show()
         }

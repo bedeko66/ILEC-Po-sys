@@ -1,44 +1,12 @@
+const fs = require('fs');
 const express = require('express');
-const path = require('path');
-const fs = require('fs')
-    // const { checkAuthenticated } = require('../../middlewares/middlewares');
 const invValidatorRouter = express.Router();
-const { getAllInvoices } = require('../../controllers/invoiceController')
+const { checkAuthenticated } = require('../../config/googleAuth');
+const { getAllInvoices, getInvoice } = require('../../controllers/invoiceController')
+const multer = require('multer');
 
-
-const client = require('../../config/googleAuth')
-require('dotenv').config()
-
-function checkAuthenticated(req, res, next) {
-    let token = req.cookies['session-token'];
-
-    let user = {};
-    async function verify() {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: process.env.CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        user.name = payload.name;
-        user.email = payload.email;
-        user.picture = payload.picture;
-    }
-    verify()
-        .then(() => {
-            if (user.email === 'h5623cc@gmail.com') {
-                req.user = user;
-                next();
-            } else {
-                // res.send('Unauthorized email')
-                // res.redirect('/')
-                next();
-            }
-        })
-        .catch(err => {
-            res.redirect('/')
-        })
-}
-
+const firebaseDb = require('../../config/firebase');
+const firestore = firebaseDb.firestore();
 
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
     let user = req.user;
@@ -46,9 +14,12 @@ invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res
     res.render('dashboard', { user, invoices })
 });
 
-invValidatorRouter.get('/invoice-validator', checkAuthenticated, function(req, res) {
+invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res) {
     let user = req.user;
-    res.render('invoice-validator', { user })
+    let id = req.params.id;
+    let invoice = await getInvoice(id)
+    console.log(invoice);
+    res.render('invoice-validator', { user, invoice, id });
 });
 
 
@@ -83,37 +54,83 @@ invValidatorRouter.post('/getsigno', function(req, res) {
 
         console.log(data.toString());
         res.write(data);
-        res.end('end');
+        return res.end('end');
     });
+    res.status(200).send('done');
 
     // res.redirect("/invoice-validator")
 
 })
 
+invValidatorRouter.post('/copy', checkAuthenticated, function(req, res) {
+
+    fs.copyFile(req.body.src, req.body.dest, (err) => {
+        if (err)
+            throw err;
+        console.log(`${req.body.src} was copied to ${req.body.dest}`);
+    });
+})
+
+invValidatorRouter.get('/uploads', checkAuthenticated, function(req, res) {
+    let user = req.user;
+    let msg = 'waiting for uploads...';
+    res.render('upload', { user, msg })
+})
+
+let storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './static/to-validate/')
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+
+let upload = multer({ storage: storage })
+invValidatorRouter.post('/uploads', upload.array('invoice', 8), async(req, res) => {
+    try {
+        const invoices = req.files;
+        console.log(invoices);
+        // check if invoices are available
+        if (!invoices) {
+            res.status(400).send({
+                status: false,
+                data: 'No photo is selected.'
+            });
+        } else {
+            let data = [];
+
+            // iterate over all invoices
+            invoices.map(p => data.push({
+                name: p.originalname,
+                mimetype: p.mimetype,
+                size: p.size
+            }));
+
+            // send response
+            try {
+                data.forEach(async d => {
+                        let invoice = { file_name: d.name };
+                        console.log(invoice);
+                        await firestore.collection('invoices').doc().set(invoice);
+                    })
+                    // res.send('Record saved successfuly');
+            } catch (error) {
+                res.status(400).send(error.message);
+            }
+            res.redirect("/dashboard")
+
+
+            // res.send({
+            //     status: true,
+            //     message: 'invoices are uploaded.',
+            //     data: data
+            // });
+        }
+
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 module.exports = invValidatorRouter;
-
-
-// const multer = require('multer');
-
-// // SET STORAGE
-// let storage = multer.diskStorage({
-//     destination: function(req, file, cb) {
-//         cb(null, 'templates')
-//     },
-//     filename: function(req, file, cb) {
-//         cb(null, file.fieldname + '-' + Date.now())
-//     }
-// })
-
-// let upload = multer({ storage: storage })
-
-// app.post('/uploadfile', upload.single('myFile'), (req, res, next) => {
-//     const file = req.file
-//     if (!file) {
-//         const error = new Error('Please upload a file')
-//         error.httpStatusCode = 400
-//         return next(error)
-//     }
-//     res.send(file)
-
-// })

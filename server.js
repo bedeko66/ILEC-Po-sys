@@ -19,13 +19,14 @@ const cookieParser = require('cookie-parser');
 //     contentSecurityPolicy: false,
 // }));
 app.use(compression());
-app.use(morgan('combined'));
+app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "static")));
 app.use(cookieParser());
 app.use(express.json());
 
+app.use("/static", express.static(path.resolve(__dirname, 'static')));
+// app.use(express.static(path.join(__dirname, "static")));
 app.set('view engine', 'ejs');
 
 app.use('/', appRouter);

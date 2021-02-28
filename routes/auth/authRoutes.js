@@ -1,7 +1,7 @@
 const express = require('express');
 const authRouter = express.Router();
 
-const client = require('../../config/googleAuth')
+const { client } = require('../../config/googleAuth')
 require('dotenv').config()
 
 // //Google Auth
