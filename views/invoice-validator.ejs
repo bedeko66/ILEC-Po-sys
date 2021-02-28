@@ -41,7 +41,7 @@
     <div class="container">
         <div class="process-loader"></div>
 
-        <h4 id="process-msg">Step 1-> Fill out your Purchase Order for below Invoice!</h4>
+        <h4 id="process-msg">Step 1- Fill out your Purchase Order for below Invoice!</h4>
         <hr class="horizontalLine">
 
         <section class="purchase-order-form center">
@@ -50,6 +50,21 @@
                 <fieldset>
                     <p>Delivery address- Ibis Earls Court Hotel/Cockpit Hotel Limited/- 47 Lillie Road London SW6 1UD</p>
                     <p>Reg. No.:3405105, VAT reg. no.: 701 5349 65</p>
+
+                    <div class="align-horizontaly m-3">
+                        <label>Department</label>
+                        <select style="width: 350px;" name="department" id="department" required>
+                          <option disabled selected value> -- select an option -- </option>
+                          <option value="reception">Reception</option>
+                          <option value="housekeeping">Housekeeping</option>
+                          <option value="foodandBeverage">Food and Beverage</option>
+                          <option value="sales">Sales</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="accounts">Accounts</option>
+                        </select>
+                        <!-- <input style="width: 350px;" type="text" class="department" id="department" name="department"> -->
+                    </div>
+
                     <div class="align-horizontaly m-3">
                         <label class="po-ref" for="po-ref">PO Id </label>
                         <input style="width: 350px;" class="po-ref" type="text" id="po-ref" name="po-ref" disabled value="<%= invoice.poId %>">
@@ -65,19 +80,6 @@
                         <input style="width: 350px;" type="text" class="attention" id="attention" name="attention" required>
                     </div>
 
-                    <div class="align-horizontaly m-3">
-                        <label>Department</label>
-                        <select style="width: 350px;" name="department" id="department" required>
-                          <option disabled selected value> -- select an option -- </option>
-                          <option value="reception">Reception</option>
-                          <option value="housekeeping">Housekeeping</option>
-                          <option value="foodandBeverage">Food and Beverage</option>
-                          <option value="sales">Sales</option>
-                          <option value="maintenance">Maintenance</option>
-                          <option value="accounts">Accounts</option>
-                        </select>
-                        <!-- <input style="width: 350px;" type="text" class="department" id="department" name="department"> -->
-                    </div>
 
 
                     <div class="align-horizontaly m-3">

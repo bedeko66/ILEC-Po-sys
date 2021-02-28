@@ -1,8 +1,20 @@
-//Google Auth
 require('dotenv').config()
 
+//Google Auth
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.CLIENT_ID);
+
+const authorizedUsers = require('./users.json');
+const registeredUser = (visitor) => {
+    let isRegistered = false;
+
+    authorizedUsers.forEach(user => {
+        if (user.email === visitor) return isRegistered = true;
+    });
+
+    return isRegistered;
+}
+
 
 function checkAuthenticated(req, res, next) {
     let token = req.cookies['session-token'];
@@ -20,7 +32,7 @@ function checkAuthenticated(req, res, next) {
     }
     verify()
         .then(() => {
-            if (user.email === 'h5623cc@gmail.com') {
+            if (registeredUser(user.email)) {
                 req.user = user;
                 next();
             } else {

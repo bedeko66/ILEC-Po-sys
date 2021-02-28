@@ -2,8 +2,12 @@ let purchaseOrderFilled = false;
 let signoPanelDisplayed = false;
 let poSigned = false;
 let invoiceSigned = false;
+
 const user = document.getElementById("user").innerText;
 let signed_at;
+let poId;
+
+
 // Pdf viewer
 const c2 = document.querySelector('#pdf-render');
 const context2 = c2.getContext('2d');
@@ -112,6 +116,14 @@ function pdfViewer(url, canvas2, ctx2) {
 }
 let view_invoice = '../static/templates/orig_invoice.pdf';
 pdfViewer(view_invoice, c2, context2)
+
+// Generate PoId -------------------------------------
+
+$('#department option:selected').on('click', function() {
+    let dptLtr = $('#department option:selected').text()[0];
+    poId = `${dptLtr}-${Math.round(Math.random() * (9000000000 - 1000000000) + 1000000000)}`;
+    $('po-ref').val(poId);
+});
 
 //-------------------------------------------------------------
 // Save po to pdf
@@ -276,19 +288,14 @@ function validateDocs() {
         }
     }).done(function(o) {
         $.ajax({
-                type: "POST",
-                url: "/copy",
-                data: {
-                    src: 'static/templates/output2.pdf',
-                    dest: 'static/validated/' + filename
-                }
-            })
-            // resetStatus()
-            // $('form :input').val('');
-            // alert('Well done! Thank you')
+            type: "POST",
+            url: "/copy",
+            data: {
+                src: 'static/templates/output2.pdf',
+                dest: 'static/validated/' + filename
+            }
+        })
     });
-    //copy
-
 
 }
 
@@ -319,7 +326,7 @@ function statusControl() {
         $('#pdf-render').hide()
         $('.purchase-order-form').hide()
         $('#process-msg').text('');
-        $('#process-msg').append('Step 2-> Validate Purchase Order with your e-signature!')
+        $('#process-msg').append('Step 2- Validate Purchase Order with your e-signature!')
         signoPanelDisplayed = true
         $('.signature').show()
 
@@ -329,14 +336,14 @@ function statusControl() {
         if (poSigned) {
             $('#pdf-render2').hide()
             $('#process-msg').text('');
-            $('#process-msg').append('Step 3-> Validate Invoice with your e-signature! - on 2nd page ')
+            $('#process-msg').append('Step 3- Validate Invoice with your e-signature! - on 2nd page ')
             $('#po-sign-btn').hide()
             $('#invoice-sign-btn').show()
         }
         if (invoiceSigned) {
             $('#pdf-render3').hide()
             $('#process-msg').text('');
-            $('#process-msg').append('4. Review and approve your documents!')
+            $('#process-msg').append('Step 4- Review and approve your documents!')
             $('#invoice-sign-btn').hide()
             $('.signature').hide()
             $('.validate-docs').show()
