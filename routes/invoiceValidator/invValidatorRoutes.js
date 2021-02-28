@@ -65,9 +65,10 @@ invValidatorRouter.post('/getsigno', function(req, res) {
 invValidatorRouter.post('/copy', checkAuthenticated, function(req, res) {
 
     fs.copyFile(req.body.src, req.body.dest, (err) => {
-        if (err)
-            throw err;
-        console.log(`${req.body.src} was copied to ${req.body.dest}`);
+        if (err) { throw err } else {
+            console.log(`${req.body.src} was copied to ${req.body.dest}`);
+            res.status(200).send('done');
+        }
     });
 })
 
