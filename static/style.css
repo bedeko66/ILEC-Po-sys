@@ -19,12 +19,41 @@ label {
     text-align: right;
 }
 
+.comments {
+    display: flex;
+    margin: 0;
+}
+
+#comments-label {
+    display: block;
+    align-self: center;
+    margin-left: 130px;
+    padding: 5px;
+}
+
 ​ .align-horizontaly {
     display: flex;
 }
 
 .center {
     text-align: center;
+}
+
+
+/* Editable table */
+
+.table-responsive {
+    display: inline-block;
+}
+
+#bEdit {
+    margin-left: 10px;
+    border-radius: 30px;
+}
+
+#bElim {
+    margin-left: 10px;
+    border-radius: 30px;
 }
 
 

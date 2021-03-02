@@ -119,10 +119,10 @@ pdfViewer(view_invoice, c2, context2)
 
 // Generate PoId -------------------------------------
 
-$('#department option:selected').on('click', function() {
+$('#department').on('click', function() {
     let dptLtr = $('#department option:selected').text()[0];
-    poId = `${dptLtr}-${Math.round(Math.random() * (9000000000 - 1000000000) + 1000000000)}`;
-    $('po-ref').val(poId);
+    poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
+    $('#po-ref').val(poId);
 });
 
 //-------------------------------------------------------------
@@ -136,9 +136,8 @@ function savePo() {
         attention: $('#attention').val(),
         department: $('#department option:selected').text(),
         orderDate: $('#order-date').val(),
-        description: $('#description').val()
+        comments: $('#comments').val()
     }
-
     $.ajax({
         type: "POST",
         url: "/generate-purchase-order",
@@ -267,11 +266,12 @@ function validateDocs() {
     let filename = $('.validate').attr('id').split('_')[1];
 
     let purchaseOrder = {
+        poId: poId,
         supplier: $('#supplier').val(),
         manager: $('#attention').val(),
         department: $('#department option:selected').text(),
         orderDate: $('#order-date').val(),
-        description: $('#description').val(),
+        comments: $('#comments').val(),
         validated: 'true',
         status: 'accepted',
         invoice_signed_by: user,

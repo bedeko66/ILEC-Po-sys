@@ -1,12 +1,15 @@
+import os
 import sys
 import PyPDF2
 from PIL import Image, ImageOps
 
+proj_path = os.getcwd()
+
 def convert_png_signo_to_pdf():
     # storing image path 
-    img_path = "/home/bedeko/dev/po-proj/static/templates/signo.png"  
+    img_path = proj_path + "/static/templates/signo.png"  
     # storing pdf path 
-    pdf_path = "/home/bedeko/dev/po-proj/static/templates/signo.pdf"
+    pdf_path = proj_path + "/static/templates/signo.pdf"
 
     with Image.open(img_path) as im:
         im2 = im.copy()
@@ -29,9 +32,9 @@ def add_signo_to_invoice(pageNum):
         input_file_src = 'output.pdf'
         output_file_src = 'output2.pdf'
     
-    input_file = f"/home/bedeko/dev/po-proj/static/templates/{input_file_src}"
-    watermark = "/home/bedeko/dev/po-proj/static/templates/signo.pdf"
-    output_file = f"/home/bedeko/dev/po-proj/static/templates/{output_file_src}"
+    input_file = proj_path + f"/static/templates/{input_file_src}"
+    watermark = proj_path + "/static/templates/signo.pdf"
+    output_file = proj_path + f"/static/templates/{output_file_src}"
 
     with open(input_file, 'rb') as inputfile:
         pdf = PyPDF2.PdfFileReader(inputfile)

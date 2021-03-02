@@ -25,14 +25,14 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
 
 invValidatorRouter.post('/generate-purchase-order', function(req, res) {
     let purchaseOrder = JSON.stringify(req.body.purchaseOrder);
-    const { spawn } = require('child_process');
 
-    const poPdfpy = spawn('python3', ['/home/bedeko/dev/po-proj/utils/po_to_pdf_merge.py', purchaseOrder]);
+    const { spawn } = require('child_process');
+    const poPdfpy = spawn('python3', [process.cwd() + '/utils/po_to_pdf_merge.py', purchaseOrder]);
 
     poPdfpy.stdout.on('data', function(data) {
         console.log(data.toString());
         res.write(data);
-        res.end('end');
+        return res.end('end');
     });
 
 })
@@ -43,12 +43,13 @@ invValidatorRouter.post('/getsigno', function(req, res) {
     fs.writeFile('static/templates/signo.png', signature, 'base64', function(err) {
         if (err) {
             console.log(err);
+            return res.end('end');
         }
     });
 
     // Run python
     const { spawn } = require('child_process');
-    const pyProg = spawn('python3', ['/home/bedeko/dev/po-proj/utils/add_signo.py', req.body.invoicePageNum]);
+    const pyProg = spawn('python3', [process.cwd() + '/utils/add_signo.py', req.body.invoicePageNum]);
 
     pyProg.stdout.on('data', function(data) {
 
@@ -76,6 +77,10 @@ invValidatorRouter.get('/uploads', checkAuthenticated, function(req, res) {
     let user = req.user;
     let msg = 'waiting for uploads...';
     res.render('upload', { user, msg })
+});
+
+invValidatorRouter.get('/download', function(req, res) {
+    res.download(process.cwd() + '/static/templates/output2.pdf', 'myDocs.pdf');
 })
 
 let storage = multer.diskStorage({

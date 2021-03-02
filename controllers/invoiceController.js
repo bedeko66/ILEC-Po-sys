@@ -34,12 +34,17 @@ const getAllInvoices_ = async(req, res, next) => {
                     doc.data().department,
                     doc.data().manager,
                     doc.data().orderDate,
-                    doc.data().description,
+                    doc.data().comments,
                     doc.data().validated,
                     doc.data().status,
                     doc.data().invoice_signed_by,
                     doc.data().invoice_signed_at,
-                    doc.data().file_name
+                    doc.data().file_name,
+
+                    doc.data().invoice_date,
+                    doc.data().invoice_net,
+                    doc.data().vat_amount,
+                    doc.data().invoice_ttl
                 )
                 invoicesArray.push(invoice)
             })
@@ -68,12 +73,18 @@ const getAllInvoices = async() => {
                     doc.data().department,
                     doc.data().manager,
                     doc.data().orderDate,
-                    doc.data().description,
+                    doc.data().comments,
                     doc.data().validated,
                     doc.data().status,
                     doc.data().invoice_signed_by,
                     doc.data().invoice_signed_at,
-                    doc.data().file_name
+                    doc.data().file_name,
+
+                    doc.data().invoice_date,
+                    doc.data().invoice_net,
+                    doc.data().vat_amount,
+                    doc.data().invoice_ttl
+
                 )
                 if (invoice.validated !== "true") {
                     invoicesArray.push(invoice)

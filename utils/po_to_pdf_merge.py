@@ -16,9 +16,9 @@ def save_purchase_order_to_pdf(purchase_order):
                         <p>Attention of: {purchase_order['attention']}</p> 
                         <p>Department: {purchase_order['department']}</p> 
                         <p>Order Date: {purchase_order['orderDate']}</p>
-                        <p>Description: {purchase_order['description']}</p>"""
+                        <p>Comments: {purchase_order['comments']}</p>"""
 
-        pdfkit.from_string(po_template, '/home/bedeko/dev/po-proj/static/templates/purchase-order.pdf') 
+        pdfkit.from_string(po_template, os.getcwd() + '/static/templates/purchase-order.pdf') 
     
     except:
         raise Exception("error while loading argument")
@@ -36,7 +36,7 @@ def add_to_writer(pdf, writer):
         writer.addPage(pdf.getPage(i))
 
 def merge_po_with_invoice():
-    pdf_dir = "/home/bedeko/dev/po-proj/static/templates/"
+    pdf_dir = os.getcwd() + "/static/templates/"
     invoice = load_pdf(pdf_dir + 'orig_invoice.pdf') 
     po = load_pdf(pdf_dir + 'purchase-order.pdf')
 
@@ -53,6 +53,15 @@ def merge_po_with_invoice():
     merged.close()
 
 
+# purchase_order = {
+#     'poId':'sdf',
+#     'supplier':'sdfs',
+#     'attention':'fdsd',
+#     'department':'zdfs',
+#     'orderDate':'cv',
+#     'comments':'vxc'
+# }
+# save_purchase_order_to_pdf(purchase_order)
 save_purchase_order_to_pdf(sys.argv[1])
 merge_po_with_invoice()
 
@@ -69,5 +78,5 @@ merge_po_with_invoice()
         #     'attention':'fdsd',
         #     'department':'zdfs',
         #     'orderDate':'cv',
-        #     'description':'vxc'
+        #     'comments':'vxc'
         # }

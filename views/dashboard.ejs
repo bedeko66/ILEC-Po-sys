@@ -59,13 +59,12 @@
                     <% invoices.forEach(function(invoice) { %>
                         <tr class="center">
                             <td>
-                                <!-- <button href="/invoice-validator/<%= invoice.id %>" onclick="copyInvoiceFile()" id="<%= invoice.file_name %>" type="button" class="button button-outline file">Validate</button> -->
                                 <button id="<%= invoice.id %>!<%= invoice.file_name %>" type="button" class="button button-outline file">Validate</button>
                             </td>
                             <td>
                                 <%= invoice.invoiceId %>
                             </td>
-                            <td class="f_name">
+                            <td>
                                 <%= invoice.file_name %>
                             </td>
                             <td>
