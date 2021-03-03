@@ -25,7 +25,7 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
 
 invValidatorRouter.post('/generate-purchase-order', function(req, res) {
     let purchaseOrder = JSON.stringify(req.body.purchaseOrder);
-
+    console.log(purchaseOrder);
     const { spawn } = require('child_process');
     const poPdfpy = spawn('python3', [process.cwd() + '/utils/po_to_pdf_merge.py', purchaseOrder]);
 

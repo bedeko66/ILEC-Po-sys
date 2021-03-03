@@ -88,17 +88,11 @@
                         <input style="width: 350px; " type="date" id="order-date" name="order-date" required value="<%=invoice.orderDate %>">
                     </div>
 
-                    <!-- <table id="to-validate" class="table table-light table-hover">
-                        <thead class="thead-dark">
-                            <tr class="center">
-                                <th>Item description</th>
-                                <th>Quantity</th>
-                                <th>Net amount</th>
-                                <th>Vat amount</th>
-                                <th>Gross Total</th>
-                            </tr>
-                        </thead>
-                    </table> -->
+                    <div class="align-horizontaly m-3 comments">
+                        <label name="comments" id="comments-label" class="comments" for="comments">Comments</label>
+                        <textarea style="width: 350px;" id="comments" value="<%= invoice.comments %>"></textarea>
+                    </div>
+
                     <div class="table-responsive col-md-10">
                         <table class="table table-bordered table-striped table-hover table-condensed  text-center" id="products-table">
                             <thead class="thead-dark">
@@ -110,13 +104,13 @@
                                         Quantity
                                     </th>
                                     <th class="text-center">
-                                        Net amount
+                                        Net amount (£)
                                     </th>
                                     <th class="text-center">
-                                        Vat amount
+                                        Vat amount (£)
                                     </th>
                                     <th class="text-center">
-                                        Gross Total
+                                        Gross Total (£)
                                     </th>
                                     <th class="text-center">
                                         <button id="addNewRow" class="button">Add New Row</button>
@@ -139,7 +133,7 @@
                                         <td>
                                             <%= item.item_vat  %>
                                         </td>
-                                        <td>
+                                        <td class="item-ttl">
                                             <%= item.item_gross  %>
                                         </td>
                                     </tr>
@@ -148,13 +142,18 @@
                         </table>
                     </div>
 
-
-                    <div class="align-horizontaly m-3 comments">
-                        <label name="comments" id="comments-label" class="comments" for="comments">Comments</label>
-                        <textarea style="width: 350px;" id="comments" value="<%= invoice.comments %>"></textarea>
+                    <div class=" align-horizontaly m-3 ttl">
+                        <p>Your purchase Order total £<span id="po-ttl"></span></p>
+                        <p>
+                            | Your invoice total £
+                            <%= invoice.invoice_ttl %>
+                        </p>
                     </div>
+                    <!-- <div class=" align-horizontaly m-3 ttl">
+                    </div> -->
 
                     <button type="button" onclick="savePo()" id="save-po" class="button-primary center"> Generate Po for below Invoice</button>
+                    <button type="button" onclick="getPoTotal()">recalculate po total</button>
                 </fieldset>
             </form>
         </section>

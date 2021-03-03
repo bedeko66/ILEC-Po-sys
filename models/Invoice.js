@@ -9,7 +9,7 @@ class InvoiceItem {
 }
 
 class Invoice {
-    constructor(id, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, itemsArr) {
+    constructor(id, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, itemsArr, po_ttl) {
         this.id = id;
         this.poId = poId;
         this.invoiceId = invoiceId;
@@ -28,6 +28,7 @@ class Invoice {
         this.invoice_net = invoice_net;
         this.vat_amount = vat_amount;
         this.invoice_ttl = invoice_ttl;
+        this.po_ttl = po_ttl;
         this.itemsArr = itemsArr;
 
     }

@@ -1,2 +1,1 @@
-for prop in properties:
-        print(prop) 
++ main_tbl

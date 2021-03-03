@@ -125,8 +125,31 @@ $('#department').on('click', function() {
     $('#po-ref').val(poId);
 });
 
-//-------------------------------------------------------------
-// Save po to pdf
+
+function getPoTotal() {
+    let itemsArr = []
+    $("#products-table tr:gt(0)").each(function() {
+        let this_row = $(this);
+        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+
+        itemsArr.push({
+            item_gross
+        })
+    });
+
+    let sum = 0
+    itemsArr.forEach(item => {
+        console.log(Number(item.item_gross));
+        sum += Number(item.item_gross)
+    })
+    $('#po-ttl').text('')
+    $('#po-ttl').append(sum)
+    console.log(sum);
+
+}
+getPoTotal()
+    //-------------------------------------------------------------
+    // Save po to pdf
 function savePo() {
     $('.process-loader').fadeIn('slow')
 

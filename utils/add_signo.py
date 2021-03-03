@@ -2,14 +2,18 @@ import os
 import sys
 import PyPDF2
 from PIL import Image, ImageOps
+from pathlib import Path
 
-proj_path = os.getcwd()
+def get_project_root() -> Path:
+    return Path(__file__).parent.parent
+
+proj_path = get_project_root()
 
 def convert_png_signo_to_pdf():
     # storing image path 
-    img_path = proj_path + "/static/templates/signo.png"  
+    img_path = str(proj_path) + "/static/templates/signo.png"  
     # storing pdf path 
-    pdf_path = proj_path + "/static/templates/signo.pdf"
+    pdf_path = str(proj_path) + "/static/templates/signo.pdf"
 
     with Image.open(img_path) as im:
         im2 = im.copy()
