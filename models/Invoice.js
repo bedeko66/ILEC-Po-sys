@@ -1,5 +1,15 @@
+class InvoiceItem {
+    constructor(item_description, item_qty, item_net, item_vat, item_gross) {
+        item_description = this.item_description;
+        item_qty = this.item_qty;
+        item_net = this.item_net;
+        item_vat = this.item_vat;
+        item_gross = this.item_gross;
+    }
+}
+
 class Invoice {
-    constructor(id, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl) {
+    constructor(id, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, itemsArr) {
         this.id = id;
         this.poId = poId;
         this.invoiceId = invoiceId;
@@ -18,8 +28,12 @@ class Invoice {
         this.invoice_net = invoice_net;
         this.vat_amount = vat_amount;
         this.invoice_ttl = invoice_ttl;
+        this.itemsArr = itemsArr;
 
     }
 }
 
-module.exports = Invoice;
+module.exports = {
+    Invoice,
+    InvoiceItem
+};

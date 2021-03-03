@@ -1,5 +1,5 @@
 const firebaseDb = require('../config/firebase');
-const Invoice = require('../models/Invoice')
+const { Invoice, InvoiceItem } = require('../models/Invoice')
 const firestore = firebaseDb.firestore();
 
 
@@ -26,6 +26,19 @@ const getAllInvoices_ = async(req, res, next) => {
             res.status(404).send('No invoice record found');
         } else {
             data.forEach(doc => {
+
+                // const invoiceItemsArray = [];
+                // doc.data().itemsArr.forEach(ia => {
+                //     const i_item = new InvoiceItem(
+                //         ia.data().item_description,
+                //         ia.data().item_qty,
+                //         ia.data().item_net,
+                //         ia.data().item_vat,
+                //         ia.data().item_gross,
+                //     )
+                //     invoiceItemsArray.push(i_item)
+                // })
+
                 const invoice = new Invoice(
                     doc.id,
                     doc.data().poId,
@@ -40,11 +53,11 @@ const getAllInvoices_ = async(req, res, next) => {
                     doc.data().invoice_signed_by,
                     doc.data().invoice_signed_at,
                     doc.data().file_name,
-
                     doc.data().invoice_date,
                     doc.data().invoice_net,
                     doc.data().vat_amount,
-                    doc.data().invoice_ttl
+                    doc.data().invoice_ttl,
+                    doc.data().itemsArr,
                 )
                 invoicesArray.push(invoice)
             })

@@ -130,14 +130,35 @@ $('#department').on('click', function() {
 function savePo() {
     $('.process-loader').fadeIn('slow')
 
-    let purchaseOrder = {
+    let itemsArr = []
+    $("#products-table tr:gt(0)").each(function() {
+        let this_row = $(this);
+
+        let item_descr = $.trim(this_row.find('td:eq(0)').html());
+        let item_qty = $.trim(this_row.find('td:eq(1)').html())
+        let item_net = $.trim(this_row.find('td:eq(2)').html())
+        let item_vat = $.trim(this_row.find('td:eq(3)').html())
+        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+
+        itemsArr.push({
+            item_descr,
+            item_qty,
+            item_net,
+            item_vat,
+            item_gross
+        })
+    });
+
+    const purchaseOrder = {
         poId: $('#po-ref').val(),
         supplier: $('#supplier').val(),
         attention: $('#attention').val(),
         department: $('#department option:selected').text(),
         orderDate: $('#order-date').val(),
-        comments: $('#comments').val()
+        comments: $('#comments').val(),
+        itemsArr
     }
+
     $.ajax({
         type: "POST",
         url: "/generate-purchase-order",
@@ -146,7 +167,7 @@ function savePo() {
         }
     }).done(function(o) {
         purchaseOrderFilled = true
-        statusControl()
+        stateControl()
     });
 
     setTimeout(function() {
@@ -156,7 +177,7 @@ function savePo() {
 
 }
 //----------------------------------------------------
-// Add Signature to docs
+// Add Signature to Docs
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -224,7 +245,7 @@ function addSignatureToPo() {
         }
     }).done(function(o) {
         poSigned = true;
-        statusControl()
+        stateControl()
     });
 
     setTimeout(function() {
@@ -252,7 +273,7 @@ function addSignatureToInvoice() {
         }
     }).done(function(o) {
         invoiceSigned = true;
-        statusControl()
+        stateControl()
     });
     setTimeout(function() {
         clearCanvas()
@@ -300,13 +321,13 @@ function validateDocs() {
 }
 
 //-------------------------------------------------------------
-// Status Controller
+// State Controller
 function reloadPage() {
     location.reload();
     return false;
 }
 
-function resetStatus() {
+function resetState() {
 
     purchaseOrderFilled = false;
     signoPanelDisplayed = false;
@@ -319,7 +340,7 @@ function resetStatus() {
 
 }
 
-function statusControl() {
+function stateControl() {
 
     if (purchaseOrderFilled) {
 
