@@ -1,4 +1,4 @@
-class InvoiceItem {
+class DocumentItem {
     constructor(item_description, item_qty, item_net, item_vat, item_gross) {
         item_description = this.item_description;
         item_qty = this.item_qty;
@@ -8,7 +8,7 @@ class InvoiceItem {
     }
 }
 
-class Invoice {
+class Document {
     constructor(id, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, itemsArr, po_ttl) {
         this.id = id;
         this.poId = poId;
@@ -35,6 +35,6 @@ class Invoice {
 }
 
 module.exports = {
-    Invoice,
-    InvoiceItem
+    Document,
+    DocumentItem
 };

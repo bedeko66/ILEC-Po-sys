@@ -10,8 +10,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../static/style.css">
-    <title>Dashboard</title>
+    <title>Purchase Orders</title>
 </head>
 
 <body>
@@ -23,14 +24,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard<span class="sr-only"></span></a>
+                    </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="/dashboard">Dashboard<span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="/purchase-orders">Purchase Orders<span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/purchase-orders">Purchase Orders<span class="sr-only"></span></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/po-creator"> Create purchase order<span class="sr-only"></span></a>
+                        <a class="nav-link" href="/po-creator">Create purchase order<span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/uploads"> Upload invoices<span class="sr-only"></span></a>
@@ -46,41 +47,43 @@
     <div class="container">
         <div class="process-loader"></div>
         <section class="invoices-list">
-            <h2 class="center m-3">Welcome
+            <h2 class="center m-3">
                 <%= user.name %>
             </h2>
+            <h4 class="center">Your purchase orders</h4>
             <hr class="horizontalLine">
-            <h4 class="center">Your invoices to validate</h4>
             <div class="container">
                 <table id="to-validate" class="table table-light table-hover">
                     <thead class="thead-dark">
                         <tr class="center">
-                            <th>Action</th>
-                            <th>Invoice id</th>
-                            <th>Invoice</th>
+                            <th>Po id</th>
                             <th>Department</th>
                             <th>Supplier</th>
+                            <th>Download</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
-                    <%if (Object.keys(invoices).length === 0) { %>
-                        <p>Currently there is no document to be validated</p>
+                    <%if (Object.keys(pos).length === 0) { %>
+                        <p class="center">Currently there are no purchase orders</p>
                         <% } else{ %>
-                            <% invoices.forEach(function(invoice) { %>
+                            <% pos.forEach(function(po) { %>
                                 <tr class="center">
                                     <td>
-                                        <button id="<%= invoice.id %>!<%= invoice.file_name %>" type="button" class="button button-outline file">Validate</button>
+                                        <%= po.poId %>
                                     </td>
                                     <td>
-                                        <%= invoice.invoiceId %>
+                                        <%= po.department %>
                                     </td>
                                     <td>
-                                        <%= invoice.file_name %>
+                                        <%= po.supplier %>
                                     </td>
                                     <td>
-                                        <%= invoice.department %>
+                                        <a class="button button-outline" type="button" href="/download-po/<%= po.file_name %>">
+                                            <i class="bi bi-cloud-download-fill"></i>
+                                        </a>
                                     </td>
                                     <td>
-                                        <%= invoice.supplier %>
+                                        <button id="<%= po.id %>!<%= po.file_name %>" type="button" class="button button-outline file"><i class="bi bi-trash2-fill"></i>Delete</button>
                                     </td>
                                 </tr>
                                 <% }); %>
@@ -98,20 +101,18 @@
     <script>
         $(".file").on('click', function(e) {
             $('.process-loader').fadeIn('slow')
+
             let id = e.target.id.split('!')[0];
             let filename = e.target.id.split('!')[1];
 
-            console.log(filename);
             $.ajax({
-                type: "POST",
-                url: "/copy",
-                data: {
-                    src: 'static/to-validate/' + filename,
-                    dest: 'static/templates/orig_invoice.pdf'
-                }
+                type: "DELETE",
+                url: "/delete/" + id,
+
             }).done(function(o) {
-                location.assign(`/invoice-validator/` + id)
+
                 $('.process-loader').fadeOut('slow')
+                window.location.reload();
             })
         });
     </script>

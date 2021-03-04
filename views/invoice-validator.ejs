@@ -28,6 +28,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/dashboard">Dashboard <span class="sr-only"></span></a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/purchase-orders">Purchase Orders<span class="sr-only"></span></a>
+                    </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="/invoice-validator">Invoice Validator <span class="sr-only">(current)</span></a>
                     </li>
@@ -41,7 +44,33 @@
     </section>
     <div class="container">
         <div class="process-loader"></div>
+        <section class="validation-mode-panel">
+            <div class="align-horizontaly m-3 center">
 
+                <h5>Select invoice validation mode</h5>
+                <select style="width: 250px;" name="validation-type" id="validation-type" required>
+                  <option disabled selected value> -- select an option -- </option>
+                  <option value="existing-po">Existing purchase order</option>
+                  <option value="new-po">Create new purchase order</option>
+                </select>
+                <button type="button" onclick="validationMode()" class="button button-outline">Submit</button>
+
+
+            </div>
+        </section>
+
+        <section id="existing-po-sel">
+            <div class="align-horizontaly m-3 center ">
+                <h5>Select purchase order</h5>
+                <select style="width: 250px;" name="po-selection" id="po-selection" required>
+                    <option disabled selected value> -- select an option -- </option>
+                    <% purchase_orders.forEach(function(po) { %>
+                        <option value="<%= po.poId %>"><%= po.poId %>_<%= po.supplier %></option>
+                    <% }); %>
+                </select>
+                <button type="button" onclick="processSelectedPo()" class="button button-outline">Submit</button>
+            </div>
+        </section>
         <h4 id="process-msg">Step 1- Fill out your Purchase Order for below Invoice!</h4>
         <hr class="horizontalLine">
 
@@ -63,7 +92,6 @@
                           <option value="maintenance">Maintenance</option>
                           <option value="accounts">Accounts</option>
                         </select>
-                        <!-- <input style="width: 350px;" type="text" class="department" id="department" name="department"> -->
                     </div>
 
                     <div class="align-horizontaly m-3">
@@ -80,8 +108,6 @@
                         <label>Attention of</label>
                         <input style="width: 350px;" type="text" class="attention" id="attention" name="attention" value="<%= invoice.manager %>" required>
                     </div>
-
-
 
                     <div class=" align-horizontaly m-3 ">
                         <label for="order-date">Order Date</label>
@@ -149,8 +175,6 @@
                             <%= invoice.invoice_ttl %>
                         </p>
                     </div>
-                    <!-- <div class=" align-horizontaly m-3 ttl">
-                    </div> -->
 
                     <button type="button" onclick="savePo()" id="save-po" class="button-primary center"> Generate Po for below Invoice</button>
                     <button type="button" onclick="getPoTotal()">recalculate po total</button>

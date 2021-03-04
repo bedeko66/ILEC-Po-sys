@@ -4,6 +4,7 @@
 /* Process Message */
 
 #process-msg {
+    display: none;
     color: red;
     text-align: center;
     margin-top: 50px;
@@ -12,6 +13,14 @@
 
 
 /* Purcase Order Section */
+
+#existing-po-sel {
+    display: none;
+}
+
+.purchase-order-form {
+    display: none;
+}
 
 label {
     display: inline-block;

@@ -1,5 +1,5 @@
 const firebaseDb = require('../config/firebase');
-const { Invoice, InvoiceItem } = require('../models/Invoice')
+const { Document, DocumentItem } = require('../models/Document')
 const firestore = firebaseDb.firestore();
 
 
@@ -27,7 +27,7 @@ const getAllInvoices_ = async(req, res, next) => {
         } else {
             data.forEach(doc => {
 
-                const invoice = new Invoice(
+                const invoice = new Document(
                     doc.id,
                     doc.data().poId,
                     doc.data().invoiceId,
@@ -64,10 +64,10 @@ const getAllInvoices = async() => {
         const invoicesArray = [];
 
         if (data.empty) {
-            return 'No invoice record found';
+            return {}
         } else {
             data.forEach(doc => {
-                const invoice = new Invoice(
+                const invoice = new Document(
                     doc.id,
                     doc.data().poId,
                     doc.data().invoiceId,
@@ -98,6 +98,7 @@ const getAllInvoices = async() => {
         console.log(error.message);
     }
 }
+
 const getInvoice = async(id) => {
     try {
         const invoice = await firestore.collection('invoices').doc(id);
@@ -144,13 +145,57 @@ const updateInvoice = async(req, res, next) => {
     }
 }
 
-const deleteInvoice = async(req, res, next) => {
+const deletePo = async(req, res, next) => {
     try {
         const id = req.params.id;
-        await firestore.collection('invoices').doc(id).delete();
+        await firestore.collection('purchase-orders').doc(id).delete();
         res.send('Record deleted successfully')
     } catch (error) {
         res.status(400).send(error.message);
+    }
+}
+
+// ------------- Pos -----------------------------------
+
+const getAllPurchaseOrders = async() => {
+    try {
+        const purchaseOrders = await firestore.collection('purchase-orders');
+        const data = await purchaseOrders.get();
+        const purchaseOrdersArray = [];
+
+        if (data.empty) {
+            return {};
+        } else {
+            data.forEach(doc => {
+                const po = new Document(
+                    doc.id,
+                    doc.data().poId,
+                    doc.data().invoiceId,
+                    doc.data().supplier,
+                    doc.data().department,
+                    doc.data().manager,
+                    doc.data().orderDate,
+                    doc.data().comments,
+                    doc.data().validated,
+                    doc.data().status,
+                    doc.data().invoice_signed_by,
+                    doc.data().invoice_signed_at,
+                    doc.data().file_name,
+                    doc.data().invoice_date,
+                    doc.data().invoice_net,
+                    doc.data().vat_amount,
+                    doc.data().invoice_ttl,
+                    doc.data().po_ttl,
+                    doc.data().itemsArr,
+                )
+
+                purchaseOrdersArray.push(po)
+
+            })
+            return purchaseOrdersArray;
+        }
+    } catch (error) {
+        console.log(error.message);
     }
 }
 
@@ -160,5 +205,6 @@ module.exports = {
     getAllInvoices_,
     getInvoice,
     updateInvoice,
-    deleteInvoice
+    deletePo,
+    getAllPurchaseOrders
 }

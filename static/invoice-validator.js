@@ -369,6 +369,7 @@ function validateDocs() {
 
 //-------------------------------------------------------------
 // State Controller
+
 function reloadPage() {
     location.reload();
     return false;
@@ -385,6 +386,40 @@ function resetState() {
     $('#po-sign-btn').show()
     $('#invoice-sign-btn').hide()
 
+}
+
+function validationMode() {
+
+    if ($('#validation-type option:selected').text() === 'Create new purchase order') {
+        $('.validation-mode-panel').hide()
+        $('#process-msg').show()
+        $('.purchase-order-form').show()
+
+    }
+    if ($('#validation-type option:selected').text() === 'Existing purchase order') {
+        $('.validation-mode-panel').hide()
+        $('#existing-po-sel').show()
+    }
+}
+
+function processSelectedPo() {
+    $('#existing-po-sel').hide()
+    let poId = $('#po-selection option:selected').text().split('_')[0]
+
+    //cp po to templates
+    $.ajax({
+        type: "POST",
+        url: "/copy",
+        data: {
+            src: 'static/purchase-orders/' + poId + '.pdf',
+            dest: 'static/templates/purchase-order.pdf'
+        }
+    })
+
+
+    purchaseOrderFilled = true
+    $('#process-msg').show()
+    stateControl()
 }
 
 function stateControl() {

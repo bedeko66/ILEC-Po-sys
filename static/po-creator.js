@@ -288,6 +288,8 @@ function addSignatureToPo() {
 function validateDocs() {
 
     $('.process-loader').fadeIn('slow')
+
+    let file_name = poId + '.pdf'
     let itemsArr = []
     $("#products-table tr:gt(0)").each(function() {
         let this_row = $(this);
@@ -319,6 +321,7 @@ function validateDocs() {
         status: 'po-awaiting-for-invoice',
         invoice_signed_by: user,
         invoice_signed_at: signed_at,
+        file_name,
         itemsArr
     }
 
@@ -334,7 +337,7 @@ function validateDocs() {
             url: "/copy",
             data: {
                 src: 'static/templates/output.pdf',
-                dest: 'static/purchase-orders/' + poId + '.pdf'
+                dest: 'static/purchase-orders/' + file_name
             }
         }).done(function(o) {
             location.assign('/dashboard')
@@ -357,7 +360,7 @@ function resetState() {
     purchaseOrderFilled = false;
     signoPanelDisplayed = false;
     poSigned = false;
-    $('.purchase-order-form').show()
+    $('.purchase-order-form-new').show()
     $('.signature').hide()
     $('#po-sign-btn').show()
     $('#invoice-sign-btn').hide()
@@ -368,7 +371,7 @@ function stateControl() {
 
     if (purchaseOrderFilled) {
         $('#pdf-render').hide()
-        $('.purchase-order-form').hide()
+        $('.purchase-order-form-new').hide()
         $('#process-msg').text('');
         $('#process-msg').append('Step 2- Validate purchase order with your e-signature!')
         signoPanelDisplayed = true

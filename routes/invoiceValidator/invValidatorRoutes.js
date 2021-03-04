@@ -2,11 +2,12 @@ const fs = require('fs');
 const express = require('express');
 const invValidatorRouter = express.Router();
 const { checkAuthenticated } = require('../../config/googleAuth');
-const { getAllInvoices, getInvoice } = require('../../controllers/invoiceController')
+const { getAllInvoices, getInvoice, getAllPurchaseOrders } = require('../../controllers/documentsController')
 const multer = require('multer');
 
 const firebaseDb = require('../../config/firebase');
 const firestore = firebaseDb.firestore();
+
 
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
     let user = req.user;
@@ -18,8 +19,9 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
     let user = req.user;
     let id = req.params.id;
     let invoice = await getInvoice(id)
-    console.log(invoice);
-    res.render('invoice-validator', { user, invoice, id });
+    let purchase_orders = await getAllPurchaseOrders()
+
+    res.render('invoice-validator', { user, invoice, id, purchase_orders });
 });
 
 
@@ -59,8 +61,6 @@ invValidatorRouter.post('/getsigno', function(req, res) {
         return res.end('end');
     });
     res.status(200).send('done');
-
-    // res.redirect("/invoice-validator")
 
 })
 
