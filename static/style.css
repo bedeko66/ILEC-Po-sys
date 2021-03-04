@@ -27,7 +27,7 @@ label {
 #comments-label {
     display: block;
     align-self: center;
-    margin-left: 240px;
+    margin-left: 180px;
     padding: 5px;
 }
 
@@ -68,8 +68,12 @@ label {
     display: inline-block;
 }
 
+#po-ttl {
+    margin: 10px
+}
 
-/* Pdf viewer */
+
+/* Pdf viewer at inv validator*/
 
 .pdf-viewer {
     display: flex;
@@ -200,4 +204,8 @@ label {
 }
 
 
-/* Dashboard */
+/* Pdf viewer at po-creator*/
+
+.po-viewer {
+    display: none;
+}

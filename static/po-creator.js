@@ -1,7 +1,6 @@
 let purchaseOrderFilled = false;
 let signoPanelDisplayed = false;
 let poSigned = false;
-let invoiceSigned = false;
 
 const user = document.getElementById("user").innerText;
 let signed_at;
@@ -15,11 +14,11 @@ const context2 = c2.getContext('2d');
 const c3 = document.querySelector('#pdf-render2');
 const context3 = c3.getContext('2d');
 
-const c4 = document.querySelector('#pdf-render3');
-const context4 = c4.getContext('2d');
+// const c4 = document.querySelector('#pdf-render3');
+// const context4 = c4.getContext('2d');
 
-const c5 = document.querySelector('#pdf-render4');
-const context5 = c5.getContext('2d');
+// const c5 = document.querySelector('#pdf-render4');
+// const context5 = c5.getContext('2d');
 
 function pdfViewer(url, canvas2, ctx2) {
 
@@ -187,17 +186,17 @@ function savePo() {
         url: "/generate-purchase-order",
         data: {
             purchaseOrder,
-            from: 'invoice-validator'
+            from: 'po-creator'
         }
     }).done(function(o) {
-        purchaseOrderFilled = true
-        stateControl()
+        setTimeout(function() {
+            purchaseOrderFilled = true
+            stateControl()
+            pdfViewer('../static/templates/purchase-order.pdf', c2, context2)
+            $('.process-loader').fadeOut('slow')
+        }, 3000);
     });
 
-    setTimeout(function() {
-        pdfViewer('../static/templates/merged.pdf', c3, context3)
-        $('.process-loader').fadeOut('slow')
-    }, 3000);
 
 }
 //----------------------------------------------------
@@ -258,6 +257,11 @@ function addSignatureToPo() {
 
     $('.process-loader').fadeIn('slow')
 
+    const timeElapsed = Date.now();
+    signed_at = new Date(timeElapsed);
+    ctx.fillText(`signed by -${user} at ${signed_at}`, (canvas.width / 15), (canvas.height / 4));
+
+
     let signo = document.getElementById('canvas').toDataURL("image/png");
 
     $.ajax({
@@ -266,7 +270,7 @@ function addSignatureToPo() {
         data: {
             signo,
             invoicePageNum: 0,
-            from: 'invoice-validator'
+            from: 'po-creator'
         }
     }).done(function(o) {
         poSigned = true;
@@ -275,43 +279,15 @@ function addSignatureToPo() {
 
     setTimeout(function() {
         clearCanvas()
-        pdfViewer('../static/templates/output.pdf', c4, context4)
+        pdfViewer('../static/templates/output.pdf', c3, context3)
         $('.process-loader').fadeOut('slow')
     }, 3000);
 }
 
-function addSignatureToInvoice() {
-    $('.process-loader').fadeIn('slow')
-
-    const timeElapsed = Date.now();
-    signed_at = new Date(timeElapsed);
-    ctx.fillText(`signed by -${user} at ${signed_at}`, (canvas.width / 15), (canvas.height / 4));
-
-    let signo = document.getElementById('canvas').toDataURL("image/png");
-
-    $.ajax({
-        type: "POST",
-        url: "/getsigno",
-        data: {
-            signo,
-            invoicePageNum: 1,
-            from: 'invoice-validator'
-        }
-    }).done(function(o) {
-        invoiceSigned = true;
-        stateControl()
-    });
-    setTimeout(function() {
-        clearCanvas()
-        pdfViewer('../static/templates/output2.pdf', c5, context5)
-        $('.process-loader').fadeOut('slow')
-    }, 3000);
-}
 
 function validateDocs() {
-    let id = $('.validate').attr('id').split('_')[0];
-    let filename = $('.validate').attr('id').split('_')[1];
 
+    $('.process-loader').fadeIn('slow')
     let itemsArr = []
     $("#products-table tr:gt(0)").each(function() {
         let this_row = $(this);
@@ -340,15 +316,15 @@ function validateDocs() {
         orderDate: $('#order-date').val(),
         comments: $('#comments').val(),
         validated: 'true',
-        status: 'accepted',
+        status: 'po-awaiting-for-invoice',
         invoice_signed_by: user,
         invoice_signed_at: signed_at,
         itemsArr
     }
 
     $.ajax({
-        type: "PUT",
-        url: `/invoice/${id}`,
+        type: "POST",
+        url: '/add-purchase-order',
         data: {
             purchaseOrder
         }
@@ -357,13 +333,15 @@ function validateDocs() {
             type: "POST",
             url: "/copy",
             data: {
-                src: 'static/templates/output2.pdf',
-                dest: 'static/validated/' + filename
+                src: 'static/templates/output.pdf',
+                dest: 'static/purchase-orders/' + poId + '.pdf'
             }
+        }).done(function(o) {
+            location.assign('/dashboard')
+            $('.process-loader').fadeOut('slow')
+
         })
     });
-
-    location.assign('/dashboard')
 
 }
 
@@ -379,7 +357,6 @@ function resetState() {
     purchaseOrderFilled = false;
     signoPanelDisplayed = false;
     poSigned = false;
-    invoiceSigned = false;
     $('.purchase-order-form').show()
     $('.signature').hide()
     $('#po-sign-btn').show()
@@ -390,28 +367,24 @@ function resetState() {
 function stateControl() {
 
     if (purchaseOrderFilled) {
-
         $('#pdf-render').hide()
         $('.purchase-order-form').hide()
         $('#process-msg').text('');
-        $('#process-msg').append('Step 2- Validate Purchase Order with your e-signature!')
+        $('#process-msg').append('Step 2- Validate purchase order with your e-signature!')
         signoPanelDisplayed = true
         $('.signature').show()
+        $('.po-viewer').show()
 
     }
 
     if (signoPanelDisplayed) {
         if (poSigned) {
-            $('#pdf-render2').hide()
+
             $('#process-msg').text('');
-            $('#process-msg').append('Step 3- Validate Invoice with your e-signature! - on 2nd page ')
             $('#po-sign-btn').hide()
-            $('#invoice-sign-btn').show()
-        }
-        if (invoiceSigned) {
-            $('#pdf-render3').hide()
+
             $('#process-msg').text('');
-            $('#process-msg').append('Step 4- Review and approve your documents!')
+            $('#process-msg').append('Step 3- Review and approve your purchase order!')
             $('#invoice-sign-btn').hide()
             $('.signature').hide()
             $('.validate-docs').show()

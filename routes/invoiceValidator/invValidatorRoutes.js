@@ -25,9 +25,10 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
 
 invValidatorRouter.post('/generate-purchase-order', function(req, res) {
     let purchaseOrder = JSON.stringify(req.body.purchaseOrder);
+
     console.log(purchaseOrder);
     const { spawn } = require('child_process');
-    const poPdfpy = spawn('python3', [process.cwd() + '/utils/po_to_pdf_merge.py', purchaseOrder]);
+    const poPdfpy = spawn('python3', [process.cwd() + '/utils/po_to_pdf_merge.py', purchaseOrder, req.body.from]);
 
     poPdfpy.stdout.on('data', function(data) {
         console.log(data.toString());
@@ -49,7 +50,7 @@ invValidatorRouter.post('/getsigno', function(req, res) {
 
     // Run python
     const { spawn } = require('child_process');
-    const pyProg = spawn('python3', [process.cwd() + '/utils/add_signo.py', req.body.invoicePageNum]);
+    const pyProg = spawn('python3', [process.cwd() + '/utils/add_signo.py', req.body.invoicePageNum, req.body.from]);
 
     pyProg.stdout.on('data', function(data) {
 
