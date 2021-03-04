@@ -29,16 +29,21 @@ def convert_png_signo_to_pdf():
 
 
 def add_signo_to_invoice(pageNum):
-    if pageNum == 0:
-        input_file_src = 'merged.pdf'
+
+    if (po_creation_from == 'po-creator'):
+        input_file_src = 'purchase-order.pdf'
         output_file_src = 'output.pdf'
     else:
-        input_file_src = 'output.pdf'
-        output_file_src = 'output2.pdf'
+        if pageNum == 0:
+            input_file_src = 'merged.pdf'
+            output_file_src = 'output.pdf'
+        else:
+            input_file_src = 'output.pdf'
+            output_file_src = 'output2.pdf'
     
-    input_file = proj_path + f"/static/templates/{input_file_src}"
-    watermark = proj_path + "/static/templates/signo.pdf"
-    output_file = proj_path + f"/static/templates/{output_file_src}"
+    input_file = str(proj_path) + f"/static/templates/{input_file_src}"
+    watermark = str(proj_path) + "/static/templates/signo.pdf"
+    output_file = str(proj_path) + f"/static/templates/{output_file_src}"
 
     with open(input_file, 'rb') as inputfile:
         pdf = PyPDF2.PdfFileReader(inputfile)
@@ -59,6 +64,12 @@ def add_signo_to_invoice(pageNum):
             with open(output_file, 'wb') as output_filecontent:
                 pdfwriter.write(output_filecontent)
 
-docs_type = int(sys.argv[1])
+
+# po_creation_from = sys.argv[2]
+# docs_type = int(sys.argv[1])
+
+po_creation_from = 'po-creator'
+docs_type = int(0)
+
 convert_png_signo_to_pdf()
 add_signo_to_invoice(docs_type)

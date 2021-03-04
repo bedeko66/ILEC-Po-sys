@@ -13,8 +13,8 @@ proj_path = get_project_root()
 
 def save_purchase_order_to_pdf(purchase_order):
     try:
-        purchase_order = json.loads(purchase_order)
         main_tbl = populate_html_table(purchase_order)
+        
         po_template = f"""<h1 style="text-align:center;">Purchase Order</h1>  
                         <h4>Delivery address: Ibis Earls Court Hotel/Cockpit Hotel Limited/- 47 Lillie Road London SW6 1UD</h4>
                         <h6>Reg. No.:3405105, VAT reg. no.: 701 5349 65</h6>
@@ -23,7 +23,8 @@ def save_purchase_order_to_pdf(purchase_order):
                         <p>Attention of: {purchase_order['attention']}</p> 
                         <p>Department: {purchase_order['department']}</p> 
                         <p>Order Date: {purchase_order['orderDate']}</p>
-                        <p>Comments: {purchase_order['comments']}</p>""" + main_tbl
+                        <p>Comments: {purchase_order['comments']}</p>
+                        <p>Purchase Order Total: {purchase_order['po_ttl']}</p>""" + main_tbl
 
         pdfkit.from_string(po_template, str(proj_path) + '/static/templates/purchase-order.pdf') 
     
@@ -49,7 +50,7 @@ def map_po_items(po_items):
         if len(temp) % 5 == 0:
             merged_tuple.append(temp[0] + temp[1] + temp[2] + temp[3] + temp[4])
             temp = []
-            
+
     return merged_tuple
 
 
@@ -132,25 +133,33 @@ def merge_po_with_invoice():
     merged.close()
 
 
-purchase_order = {
-    'poId':'sdf',
-    'supplier':'sdfs',
-    'attention':'fdsd',
-    'department':'zdfs',
-    'orderDate':'cv',
-    'comments':'vxc',
-    "itemsArr":[{"item_descr":"item1","item_qty":"12","item_net":"1232","item_vat":"145","item_gross":"67"},{"item_descr":"item2","item_qty":"1","item_net":"132","item_vat":"15","item_gross":"7"}]
-}
 
-# save_purchase_order_to_pdf(purchase_order)
-save_purchase_order_to_pdf(sys.argv[1])
-merge_po_with_invoice()
+
+purchase_order = json.loads(sys.argv[1])
+
+
+save_purchase_order_to_pdf(purchase_order)
+if (sys.argv[2] == 'invoice-validator'):
+    merge_po_with_invoice()
 
 
 
 
 
 
-# https://pythonexamples.org/python-convert-html-to-pdf/
-# sudo apt-get install wkhtmltopdf
 
+
+
+
+
+
+# --------------------------------------------------------
+# purchase_order = {
+#     'poId':'sdf',
+#     'supplier':'sdfs',
+#     'attention':'fdsd',
+#     'department':'zdfs',
+#     'orderDate':'cv',
+#     'comments':'vxc',
+#     "itemsArr":[{"item_descr":"item1","item_qty":"12","item_net":"1232","item_vat":"145","item_gross":"67"},{"item_descr":"item2","item_qty":"1","item_net":"132","item_vat":"15","item_gross":"7"}]
+# }
