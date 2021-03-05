@@ -34,16 +34,27 @@ def add_signo_to_invoice(pageNum):
         input_file_src = 'purchase-order.pdf'
         output_file_src = 'output.pdf'
     else:
-        if pageNum == 0:
-            input_file_src = 'merged.pdf'
-            output_file_src = 'output.pdf'
+        if (po_creation_from == 'invoice-validator-existing-po'):
+                pageNum = 1
+                input_file_src = 'merged.pdf'
+                output_file_src = 'output2.pdf'
         else:
-            input_file_src = 'output.pdf'
-            output_file_src = 'output2.pdf'
+            if (pageNum == 0):
+                input_file_src = 'merged.pdf'
+                output_file_src = 'output.pdf'
+            if (pageNum == 1):
+                input_file_src = 'output.pdf'
+                output_file_src = 'output2.pdf'
+      
     
-    input_file = str(proj_path) + f"/static/templates/{input_file_src}"
-    watermark = str(proj_path) + "/static/templates/signo.pdf"
-    output_file = str(proj_path) + f"/static/templates/{output_file_src}"
+    # input_file = str(proj_path) + f"/static/templates/{input_file_src}"
+    # watermark = str(proj_path) + "/static/templates/signo.pdf"
+    # output_file = str(proj_path) + f"/static/templates/{output_file_src}"
+
+    input_file = f"/home/bedeko/dev/po-proj/static/templates/{input_file_src}"
+    watermark = f"/home/bedeko/dev/po-proj/static/templates/signo.pdf"
+    output_file = f"/home/bedeko/dev/po-proj/static/templates/{output_file_src}"
+
 
     with open(input_file, 'rb') as inputfile:
         pdf = PyPDF2.PdfFileReader(inputfile)
@@ -65,11 +76,14 @@ def add_signo_to_invoice(pageNum):
                 pdfwriter.write(output_filecontent)
 
 
-# po_creation_from = sys.argv[2]
-# docs_type = int(sys.argv[1])
+po_creation_from = sys.argv[2]
+docs_type = int(sys.argv[1])
 
-po_creation_from = 'po-creator'
-docs_type = int(0)
+
+
+# po_creation_from = 'invoice-validator-existing-po'
+# docs_type = int(0)
 
 convert_png_signo_to_pdf()
+# docs_type = 2
 add_signo_to_invoice(docs_type)

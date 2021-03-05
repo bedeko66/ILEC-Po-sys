@@ -19,6 +19,7 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
     let user = req.user;
     let id = req.params.id;
     let invoice = await getInvoice(id)
+    console.log(invoice);
     let purchase_orders = await getAllPurchaseOrders()
 
     res.render('invoice-validator', { user, invoice, id, purchase_orders });
@@ -40,6 +41,19 @@ invValidatorRouter.post('/generate-purchase-order', function(req, res) {
 
 })
 
+invValidatorRouter.get('/merge-from-existing-purchase-order', function(req, res) {
+
+    const { spawn } = require('child_process');
+    const poPdfpy = spawn('python3', [process.cwd() + '/utils/merge_from_existing_po.py']);
+
+    poPdfpy.stdout.on('data', function(data) {
+        console.log(data.toString());
+        res.write(data);
+        return res.end('end');
+    });
+
+})
+
 invValidatorRouter.post('/getsigno', function(req, res) {
     let signature = req.body.signo.replace(/^data:image\/png;base64,/, "");
 
@@ -51,6 +65,7 @@ invValidatorRouter.post('/getsigno', function(req, res) {
     });
 
     // Run python
+    console.log(req.body.from);
     const { spawn } = require('child_process');
     const pyProg = spawn('python3', [process.cwd() + '/utils/add_signo.py', req.body.invoicePageNum, req.body.from]);
 
@@ -117,7 +132,10 @@ invValidatorRouter.post('/uploads', upload.array('invoice', 8), async(req, res) 
             // send response
             try {
                 data.forEach(async d => {
-                        let invoice = { file_name: d.name };
+                        let invoice = {
+                            file_name: d.name,
+                            itemsArr: [{ item_descr: "", item_gross: "", item_net: "", item_gty: "", item_vat: "" }]
+                        };
                         console.log(invoice);
                         await firestore.collection('invoices').doc().set(invoice);
                     })

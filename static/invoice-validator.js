@@ -3,9 +3,12 @@ let signoPanelDisplayed = false;
 let poSigned = false;
 let invoiceSigned = false;
 
+let updateFromExistingPo = false;
+
 const user = document.getElementById("user").innerText;
 let signed_at;
 let poId;
+
 
 
 // Pdf viewer
@@ -289,13 +292,18 @@ function addSignatureToInvoice() {
 
     let signo = document.getElementById('canvas').toDataURL("image/png");
 
+    let from = 'invoice-validator'
+    if (updateFromExistingPo) {
+        from = 'invoice-validator-existing-po'
+    }
+
     $.ajax({
         type: "POST",
         url: "/getsigno",
         data: {
             signo,
             invoicePageNum: 1,
-            from: 'invoice-validator'
+            from
         }
     }).done(function(o) {
         invoiceSigned = true;
@@ -312,56 +320,83 @@ function validateDocs() {
     let id = $('.validate').attr('id').split('_')[0];
     let filename = $('.validate').attr('id').split('_')[1];
 
-    let itemsArr = []
-    $("#products-table tr:gt(0)").each(function() {
-        let this_row = $(this);
+    if (updateFromExistingPo === false) {
 
-        let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = $.trim(this_row.find('td:eq(1)').html())
-        let item_net = $.trim(this_row.find('td:eq(2)').html())
-        let item_vat = $.trim(this_row.find('td:eq(3)').html())
-        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+        let itemsArr = []
+        $("#products-table tr:gt(0)").each(function() {
+            let this_row = $(this);
 
-        itemsArr.push({
-            item_descr,
-            item_qty,
-            item_net,
-            item_vat,
-            item_gross
-        })
-    });
+            let item_descr = $.trim(this_row.find('td:eq(0)').html());
+            let item_qty = $.trim(this_row.find('td:eq(1)').html())
+            let item_net = $.trim(this_row.find('td:eq(2)').html())
+            let item_vat = $.trim(this_row.find('td:eq(3)').html())
+            let item_gross = $.trim(this_row.find('td:eq(4)').html())
+
+            itemsArr.push({
+                item_descr,
+                item_qty,
+                item_net,
+                item_vat,
+                item_gross
+            })
+        });
 
 
-    let purchaseOrder = {
-        poId: poId,
-        supplier: $('#supplier').val(),
-        manager: $('#attention').val(),
-        department: $('#department option:selected').text(),
-        orderDate: $('#order-date').val(),
-        comments: $('#comments').val(),
-        validated: 'true',
-        status: 'accepted',
-        invoice_signed_by: user,
-        invoice_signed_at: signed_at,
-        itemsArr
+        let purchaseOrder = {
+            poId: poId,
+            supplier: $('#supplier').val(),
+            manager: $('#attention').val(),
+            department: $('#department option:selected').text(),
+            orderDate: $('#order-date').val(),
+            comments: $('#comments').val(),
+            validated: 'true',
+            status: 'accepted',
+            invoice_signed_by: user,
+            invoice_signed_at: signed_at,
+            itemsArr
+        }
+
+        $.ajax({
+            type: "PUT",
+            url: `/invoice/${id}`,
+            data: {
+                purchaseOrder
+            }
+        }).done(function(o) {
+            $.ajax({
+                type: "POST",
+                url: "/copy",
+                data: {
+                    src: 'static/templates/output2.pdf',
+                    dest: 'static/validated/' + filename
+                }
+            })
+        });
+    } else {
+        let purchaseOrder = {
+            validated: 'true',
+            status: 'accepted',
+            invoice_signed_by: user,
+            invoice_signed_at: signed_at,
+        }
+        $.ajax({
+            type: "PUT",
+            url: `/invoice/${id}`,
+            data: {
+                purchaseOrder
+            }
+        }).done(function(o) {
+            $.ajax({
+                type: "POST",
+                url: "/copy",
+                data: {
+                    src: 'static/templates/output2.pdf',
+                    dest: 'static/validated/' + filename
+                }
+            })
+        });
     }
 
-    $.ajax({
-        type: "PUT",
-        url: `/invoice/${id}`,
-        data: {
-            purchaseOrder
-        }
-    }).done(function(o) {
-        $.ajax({
-            type: "POST",
-            url: "/copy",
-            data: {
-                src: 'static/templates/output2.pdf',
-                dest: 'static/validated/' + filename
-            }
-        })
-    });
 
     location.assign('/dashboard')
 
@@ -403,10 +438,15 @@ function validationMode() {
 }
 
 function processSelectedPo() {
+
+    $('.process-loader').fadeIn('slow')
+
     $('#existing-po-sel').hide()
     let poId = $('#po-selection option:selected').text().split('_')[0]
+    let id = $('#po-selection option:selected').attr('value')
+    let invoice_id = $('.validate').attr('id').split('_')[0];
 
-    //cp po to templates
+    //cp po to templates //get po -update db
     $.ajax({
         type: "POST",
         url: "/copy",
@@ -414,12 +454,42 @@ function processSelectedPo() {
             src: 'static/purchase-orders/' + poId + '.pdf',
             dest: 'static/templates/purchase-order.pdf'
         }
+    }).done(function(o) {
+        $.ajax({
+            type: "GET",
+            url: `/purchase-order/${id}`,
+        }).done(function(data) {
+            console.log(data);
+            updateFromExistingPo = true
+            $.ajax({
+                type: "PUT",
+                url: `/invoice/${invoice_id}`,
+                data: {
+                    purchaseOrder: data
+                }
+            }).done(function(o) {
+                $.ajax({
+                    type: "GET",
+                    url: "/merge-from-existing-purchase-order",
+
+                })
+
+                setTimeout(function() {
+                    purchaseOrderFilled = true
+                    poSigned = true
+                    $('#process-msg').show()
+                    stateControl()
+                    pdfViewer('../static/templates/merged.pdf', c3, context3)
+                        // pdfViewer('../static/templates/output2.pdf', c5, context5)
+                    $('#pdf-render2').show()
+
+                    $('.process-loader').fadeOut('slow')
+                }, 3000);
+            })
+        })
+
     })
 
-
-    purchaseOrderFilled = true
-    $('#process-msg').show()
-    stateControl()
 }
 
 function stateControl() {
