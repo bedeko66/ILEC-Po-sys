@@ -31,6 +31,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/purchase-orders">Purchase Orders<span class="sr-only"></span></a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/po-creator"> Create purchase order<span class="sr-only"></span></a>
+                    </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="/invoice-validator">Invoice Validator <span class="sr-only">(current)</span></a>
                     </li>
@@ -61,14 +64,19 @@
 
         <section id="existing-po-sel">
             <div class="align-horizontaly m-3 center ">
-                <h5>Select purchase order</h5>
-                <select style="width: 250px;" name="po-selection" id="po-selection" required>
-                    <option disabled selected value> -- select an option -- </option>
-                    <% purchase_orders.forEach(function(po) { %>
-                        <option value="<%= po.id %>"><%= po.poId %>_<%= po.supplier %></option>
-                    <% }); %>
-                </select>
-                <button type="button" onclick="processSelectedPo()" class="button button-outline">Submit</button>
+                <%if (Object.keys(purchase_orders).length === 0) { %>
+                    <!-- <option disabled selected value> -- create po first -- </option> -->
+                    <p>There is no existing purchase order availabe, please create one first!</p>
+                    <% } else{ %>
+                        <h5>Select purchase order</h5>
+                        <select style="width: 250px;" name="po-selection" id="po-selection" required>
+                            <option disabled selected value> -- select an option -- </option>
+                            <% purchase_orders.forEach(function(po) { %>
+                                <option value="<%= po.id %>"><%= po.poId %>_<%= po.supplier %></option>
+                             <% }); %>
+                        </select>
+                        <button type="button" onclick="processSelectedPo()" class="button button-outline">Submit</button>
+                        <% } %>
             </div>
         </section>
         <h4 id="process-msg">Step 1- Fill out your Purchase Order for below Invoice!</h4>

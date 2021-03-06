@@ -312,6 +312,7 @@ function validateDocs() {
 
     let purchaseOrder = {
         poId: poId,
+        document_user: user,
         supplier: $('#supplier').val(),
         manager: $('#attention').val(),
         department: $('#department option:selected').text(),
@@ -340,7 +341,7 @@ function validateDocs() {
                 dest: 'static/purchase-orders/' + file_name
             }
         }).done(function(o) {
-            location.assign('/dashboard')
+            location.assign('/purchase-orders')
             $('.process-loader').fadeOut('slow')
 
         })

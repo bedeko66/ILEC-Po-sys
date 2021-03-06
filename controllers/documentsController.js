@@ -57,7 +57,7 @@ const getAllInvoices_ = async(req, res, next) => {
     }
 }
 
-const getAllInvoices = async() => {
+const getAllInvoices = async(user) => {
     try {
         const invoices = await firestore.collection('invoices');
         const data = await invoices.get();
@@ -67,30 +67,34 @@ const getAllInvoices = async() => {
             return {}
         } else {
             data.forEach(doc => {
-                const invoice = new Document(
-                    doc.id,
-                    doc.data().poId,
-                    doc.data().invoiceId,
-                    doc.data().supplier,
-                    doc.data().department,
-                    doc.data().manager,
-                    doc.data().orderDate,
-                    doc.data().comments,
-                    doc.data().validated,
-                    doc.data().status,
-                    doc.data().invoice_signed_by,
-                    doc.data().invoice_signed_at,
-                    doc.data().file_name,
-                    doc.data().invoice_date,
-                    doc.data().invoice_net,
-                    doc.data().vat_amount,
-                    doc.data().invoice_ttl,
-                    doc.data().po_ttl,
-                    doc.data().itemsArr,
-                )
-                if (invoice.validated !== "true") {
+                if (doc.data().document_user === user.name) {
+                    const invoice = new Document(
+                        doc.id,
+                        doc.data().document_user,
+                        doc.data().poId,
+                        doc.data().invoiceId,
+                        doc.data().supplier,
+                        doc.data().department,
+                        doc.data().manager,
+                        doc.data().orderDate,
+                        doc.data().comments,
+                        doc.data().validated,
+                        doc.data().status,
+                        doc.data().invoice_signed_by,
+                        doc.data().invoice_signed_at,
+                        doc.data().file_name,
+                        doc.data().invoice_date,
+                        doc.data().invoice_net,
+                        doc.data().vat_amount,
+                        doc.data().invoice_ttl,
+                        doc.data().po_ttl,
+                        doc.data().itemsArr,
+                        doc.data().orig_file_name
+                    )
+
                     invoicesArray.push(invoice)
                 }
+
             })
             return invoicesArray;
         }
@@ -136,7 +140,6 @@ const updateInvoice = async(req, res, next) => {
     try {
         const id = req.params.id;
         const data = req.body.purchaseOrder;
-        console.log(data);
         const invoice = await firestore.collection('invoices').doc(id);
         await invoice.update(data);
         res.send('Invoice record updated successfully');
@@ -155,6 +158,18 @@ const deletePo = async(req, res, next) => {
     }
 }
 
+// ---- Filters ---------------------
+
+function filterUnValidatedInvoices(invoices) {
+    let UnValidatedInvoices = []
+    invoices.forEach(invoice => {
+        if (invoice.validated === false) {
+            UnValidatedInvoices.push(invoice)
+        }
+    })
+    console.log(UnValidatedInvoices);
+    return UnValidatedInvoices
+}
 // ------------- Pos -----------------------------------
 
 const getPurchaseOrder = async(req, res, next) => {
@@ -175,7 +190,7 @@ const getPurchaseOrder = async(req, res, next) => {
 }
 
 
-const getAllPurchaseOrders = async() => {
+const getAllPurchaseOrders = async(user) => {
     try {
         const purchaseOrders = await firestore.collection('purchase-orders');
         const data = await purchaseOrders.get();
@@ -185,29 +200,35 @@ const getAllPurchaseOrders = async() => {
             return {};
         } else {
             data.forEach(doc => {
-                const po = new Document(
-                    doc.id,
-                    doc.data().poId,
-                    doc.data().invoiceId,
-                    doc.data().supplier,
-                    doc.data().department,
-                    doc.data().manager,
-                    doc.data().orderDate,
-                    doc.data().comments,
-                    doc.data().validated,
-                    doc.data().status,
-                    doc.data().invoice_signed_by,
-                    doc.data().invoice_signed_at,
-                    doc.data().file_name,
-                    doc.data().invoice_date,
-                    doc.data().invoice_net,
-                    doc.data().vat_amount,
-                    doc.data().invoice_ttl,
-                    doc.data().po_ttl,
-                    doc.data().itemsArr,
-                )
 
-                purchaseOrdersArray.push(po)
+                if (doc.data().document_user === user.name) {
+
+                    const po = new Document(
+                        doc.id,
+                        doc.data().document_user,
+                        doc.data().poId,
+                        doc.data().invoiceId,
+                        doc.data().supplier,
+                        doc.data().department,
+                        doc.data().manager,
+                        doc.data().orderDate,
+                        doc.data().comments,
+                        doc.data().validated,
+                        doc.data().status,
+                        doc.data().invoice_signed_by,
+                        doc.data().invoice_signed_at,
+                        doc.data().file_name,
+                        doc.data().invoice_date,
+                        doc.data().invoice_net,
+                        doc.data().vat_amount,
+                        doc.data().invoice_ttl,
+                        doc.data().po_ttl,
+                        doc.data().itemsArr,
+                        doc.data().orig_file_name
+                    )
+
+                    purchaseOrdersArray.push(po)
+                }
 
             })
             return purchaseOrdersArray;
@@ -225,5 +246,6 @@ module.exports = {
     updateInvoice,
     deletePo,
     getAllPurchaseOrders,
-    getPurchaseOrder
+    getPurchaseOrder,
+    filterUnValidatedInvoices
 }

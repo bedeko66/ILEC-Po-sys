@@ -2,7 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const invValidatorRouter = express.Router();
 const { checkAuthenticated } = require('../../config/googleAuth');
-const { getAllInvoices, getInvoice, getAllPurchaseOrders } = require('../../controllers/documentsController')
+const { getAllInvoices, getInvoice, getAllPurchaseOrders, filterUnValidatedInvoices } = require('../../controllers/documentsController')
 const multer = require('multer');
 
 const firebaseDb = require('../../config/firebase');
@@ -11,25 +11,37 @@ const firestore = firebaseDb.firestore();
 
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
     let user = req.user;
-    const invoices = await getAllInvoices();
-    res.render('dashboard', { user, invoices })
+    const invoices = await getAllInvoices(user);
+    const invoicesToValidate = filterUnValidatedInvoices(invoices)
+    res.render('dashboard', { user, invoicesToValidate })
+});
+
+invValidatorRouter.get('/validated-docs', checkAuthenticated, async function(req, res) {
+    let user = req.user;
+    const invoices = await getAllInvoices(user);
+    res.render('validated-docs', { user, invoices })
 });
 
 invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res) {
     let user = req.user;
     let id = req.params.id;
     let invoice = await getInvoice(id)
-    console.log(invoice);
-    let purchase_orders = await getAllPurchaseOrders()
+
+    let purchase_orders = await getAllPurchaseOrders(user)
 
     res.render('invoice-validator', { user, invoice, id, purchase_orders });
 });
+
+invValidatorRouter.get('/download-validated/:file_name', function(req, res) {
+    res.download(process.cwd() + '/static/validated/' + req.params.file_name, req.params.file_name);
+})
+
 
 
 invValidatorRouter.post('/generate-purchase-order', function(req, res) {
     let purchaseOrder = JSON.stringify(req.body.purchaseOrder);
 
-    console.log(purchaseOrder);
+
     const { spawn } = require('child_process');
     const poPdfpy = spawn('python3', [process.cwd() + '/utils/po_to_pdf_merge.py', purchaseOrder, req.body.from]);
 
@@ -65,7 +77,6 @@ invValidatorRouter.post('/getsigno', function(req, res) {
     });
 
     // Run python
-    console.log(req.body.from);
     const { spawn } = require('child_process');
     const pyProg = spawn('python3', [process.cwd() + '/utils/add_signo.py', req.body.invoicePageNum, req.body.from]);
 
@@ -99,6 +110,7 @@ invValidatorRouter.get('/download', function(req, res) {
     res.download(process.cwd() + '/static/templates/output2.pdf', 'myDocs.pdf');
 })
 
+
 let storage = multer.diskStorage({
     destination: function(req, file, cb) {
         cb(null, './static/to-validate/')
@@ -109,10 +121,12 @@ let storage = multer.diskStorage({
 })
 
 let upload = multer({ storage: storage })
-invValidatorRouter.post('/uploads', upload.array('invoice', 8), async(req, res) => {
+
+
+invValidatorRouter.post('/uploads/:user', checkAuthenticated, upload.array('invoice', 8), async(req, res) => {
     try {
+        let user = req.params.user
         const invoices = req.files;
-        console.log(invoices);
         // check if invoices are available
         if (!invoices) {
             res.status(400).send({
@@ -133,10 +147,13 @@ invValidatorRouter.post('/uploads', upload.array('invoice', 8), async(req, res) 
             try {
                 data.forEach(async d => {
                         let invoice = {
+                            document_user: user,
                             file_name: d.name,
+                            orig_file_name: d.name,
+                            validated: false,
                             itemsArr: [{ item_descr: "", item_gross: "", item_net: "", item_gty: "", item_vat: "" }]
                         };
-                        console.log(invoice);
+
                         await firestore.collection('invoices').doc().set(invoice);
                     })
                     // res.send('Record saved successfuly');
@@ -144,13 +161,6 @@ invValidatorRouter.post('/uploads', upload.array('invoice', 8), async(req, res) 
                 res.status(400).send(error.message);
             }
             res.redirect("/dashboard")
-
-
-            // res.send({
-            //     status: true,
-            //     message: 'invoices are uploaded.',
-            //     data: data
-            // });
         }
 
     } catch (err) {

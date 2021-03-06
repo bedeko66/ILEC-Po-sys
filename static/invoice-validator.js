@@ -319,6 +319,7 @@ function addSignatureToInvoice() {
 function validateDocs() {
     let id = $('.validate').attr('id').split('_')[0];
     let filename = $('.validate').attr('id').split('_')[1];
+    // let orig_filename = $('.validate').attr('id').split('_')[2];
 
     if (updateFromExistingPo === false) {
 
@@ -349,7 +350,7 @@ function validateDocs() {
             department: $('#department option:selected').text(),
             orderDate: $('#order-date').val(),
             comments: $('#comments').val(),
-            validated: 'true',
+            validated: true,
             status: 'accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
@@ -374,7 +375,7 @@ function validateDocs() {
         });
     } else {
         let purchaseOrder = {
-            validated: 'true',
+            validated: true,
             status: 'accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
@@ -459,7 +460,6 @@ function processSelectedPo() {
             type: "GET",
             url: `/purchase-order/${id}`,
         }).done(function(data) {
-            console.log(data);
             updateFromExistingPo = true
             $.ajax({
                 type: "PUT",

@@ -11,8 +11,7 @@ const firestore = firebaseDb.firestore();
 
 purchaseOrderRouter.get('/purchase-orders', checkAuthenticated, async function(req, res) {
     let user = req.user;
-    const pos = await getAllPurchaseOrders();
-    console.log(pos);
+    const pos = await getAllPurchaseOrders(user);
     res.render('purchase-orders', { user, pos })
 });
 
