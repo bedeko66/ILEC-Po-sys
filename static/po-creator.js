@@ -318,7 +318,6 @@ function validateDocs() {
         department: $('#department option:selected').text(),
         orderDate: $('#order-date').val(),
         comments: $('#comments').val(),
-        validated: 'true',
         status: 'po-awaiting-for-invoice',
         invoice_signed_by: user,
         invoice_signed_at: signed_at,

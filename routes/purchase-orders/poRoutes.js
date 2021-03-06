@@ -2,7 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const purchaseOrderRouter = express.Router();
 const { checkAuthenticated } = require('../../config/googleAuth');
-const { getAllPurchaseOrders } = require('../../controllers/documentsController')
+const { getAllPurchaseOrders, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
 
 const firebaseDb = require('../../config/firebase');
 const firestore = firebaseDb.firestore();
@@ -12,7 +12,8 @@ const firestore = firebaseDb.firestore();
 purchaseOrderRouter.get('/purchase-orders', checkAuthenticated, async function(req, res) {
     let user = req.user;
     const pos = await getAllPurchaseOrders(user);
-    res.render('purchase-orders', { user, pos })
+    const unmatchedPos = filterAwaitingPurchaseOrders(pos)
+    res.render('purchase-orders', { user, unmatchedPos })
 });
 
 purchaseOrderRouter.get('/po-creator', checkAuthenticated, async function(req, res) {

@@ -317,9 +317,8 @@ function addSignatureToInvoice() {
 }
 
 function validateDocs() {
-    let id = $('.validate').attr('id').split('_')[0];
-    let filename = $('.validate').attr('id').split('_')[1];
-    // let orig_filename = $('.validate').attr('id').split('_')[2];
+    let id = $('.validate').attr('id').split('!')[0];
+    let filename = $('.validate').attr('id').split('!')[1];
 
     if (updateFromExistingPo === false) {
 
@@ -351,7 +350,7 @@ function validateDocs() {
             orderDate: $('#order-date').val(),
             comments: $('#comments').val(),
             validated: true,
-            status: 'accepted',
+            status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
             itemsArr
@@ -371,8 +370,9 @@ function validateDocs() {
                     src: 'static/templates/output2.pdf',
                     dest: 'static/validated/' + filename
                 }
-            })
+            }).done(function(o) { location.assign('/dashboard') })
         });
+
     } else {
         let purchaseOrder = {
             validated: true,
@@ -394,12 +394,10 @@ function validateDocs() {
                     src: 'static/templates/output2.pdf',
                     dest: 'static/validated/' + filename
                 }
-            })
+            }).done(function(o) { location.assign('/dashboard') })
         });
     }
 
-
-    location.assign('/dashboard')
 
 }
 
@@ -445,7 +443,7 @@ function processSelectedPo() {
     $('#existing-po-sel').hide()
     let poId = $('#po-selection option:selected').text().split('_')[0]
     let id = $('#po-selection option:selected').attr('value')
-    let invoice_id = $('.validate').attr('id').split('_')[0];
+    let invoice_id = $('.validate').attr('id').split('!')[0];
 
     //cp po to templates //get po -update db
     $.ajax({

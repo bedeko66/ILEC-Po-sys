@@ -119,22 +119,6 @@ const getInvoice = async(id) => {
     }
 }
 
-// const getInvoice = async(req, res, next) => {
-//     try {
-//         const id = req.params.id;
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         const data = await invoice.get();
-
-//         if (!data.exists) {
-//             res.status(404).send('Invoice with the given ID not found');
-
-//         } else {
-//             res.send(data.data())
-//         }
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// }
 
 const updateInvoice = async(req, res, next) => {
     try {
@@ -167,9 +151,19 @@ function filterUnValidatedInvoices(invoices) {
             UnValidatedInvoices.push(invoice)
         }
     })
-    console.log(UnValidatedInvoices);
     return UnValidatedInvoices
 }
+
+function filterAwaitingPurchaseOrders(pos) {
+    let AwaitingPurchaseOrders = []
+    pos.forEach(po => {
+        if (po.status === 'po-awaiting-for-invoice') {
+            AwaitingPurchaseOrders.push(po)
+        }
+    })
+    return AwaitingPurchaseOrders
+}
+
 // ------------- Pos -----------------------------------
 
 const getPurchaseOrder = async(req, res, next) => {
@@ -247,5 +241,28 @@ module.exports = {
     deletePo,
     getAllPurchaseOrders,
     getPurchaseOrder,
-    filterUnValidatedInvoices
+    filterUnValidatedInvoices,
+    filterAwaitingPurchaseOrders
 }
+
+
+
+
+
+//--------------------------------------------------------------
+// const getInvoice = async(req, res, next) => {
+//     try {
+//         const id = req.params.id;
+//         const invoice = await firestore.collection('invoices').doc(id);
+//         const data = await invoice.get();
+
+//         if (!data.exists) {
+//             res.status(404).send('Invoice with the given ID not found');
+
+//         } else {
+//             res.send(data.data())
+//         }
+//     } catch (error) {
+//         res.status(400).send(error.message);
+//     }
+// }

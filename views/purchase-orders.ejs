@@ -50,23 +50,23 @@
             <h2 class="center m-3">
                 <%= user.name %>
             </h2>
-            <h4 class="center">Your purchase orders</h4>
+            <h4 class="center">Unmatched purchase orders</h4>
             <hr class="horizontalLine">
             <div class="container">
-                <table id="to-validate" class="table table-light table-hover">
-                    <thead class="thead-dark">
-                        <tr class="center">
-                            <th>Po id</th>
-                            <th>Department</th>
-                            <th>Supplier</th>
-                            <th>Download</th>
-                            <th>Delete</th>
-                        </tr>
-                    </thead>
-                    <%if (Object.keys(pos).length === 0) { %>
-                        <p class="center">Currently there are no purchase orders</p>
-                        <% } else{ %>
-                            <% pos.forEach(function(po) { %>
+                <%if (Object.keys(unmatchedPos).length === 0) { %>
+                    <p class="center">Currently there are no pending purchase orders.</p>
+                    <% } else{ %>
+                        <table id="to-validate" class="table table-light table-hover">
+                            <thead class="thead-dark">
+                                <tr class="center">
+                                    <th>Po Id</th>
+                                    <th>Department</th>
+                                    <th>Supplier</th>
+                                    <th>Download</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <% unmatchedPos.forEach(function(po) { %>
                                 <tr class="center">
                                     <td>
                                         <%= po.poId %>
@@ -88,7 +88,7 @@
                                 </tr>
                                 <% }); %>
                                     <% } %>
-                </table>
+                        </table>
             </div>
 
         </section>

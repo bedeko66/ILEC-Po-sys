@@ -53,22 +53,19 @@
                 <%= user.name %>
             </h2>
             <hr class="horizontalLine">
-            <h4 class="center">Your invoices to validate</h4>
             <div class="container">
-
                 <%if (Object.keys(invoicesToValidate).length === 0) { %>
+                    <p class="center">Upload an invoice first!</p>
                     <h5 class="center">Currently there is no document to be validated</h5>
-                    <p class="center">Upload your invoice first!</p>
                     <% } else{ %>
                         <% invoicesToValidate.forEach(function(invoice) { %>
                             <%if ( invoice.validated !== "true") { %>
+                                <h4 class="center">Your invoices to validate</h4>
                                 <table id="to-validate" class="table table-light table-hover">
                                     <thead class="thead-dark">
                                         <tr class="center">
                                             <th>Action</th>
-
                                             <th>Invoice</th>
-
                                         </tr>
                                     </thead>
                                     <tr class="center">
