@@ -10,26 +10,47 @@ const firestore = firebaseDb.firestore();
 
 
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
-    let user = req.user;
-    const invoices = await getAllInvoices(user);
-    const invoicesToValidate = filterUnValidatedInvoices(invoices)
-    res.render('dashboard', { user, invoicesToValidate })
+    try {
+        let user = req.user;
+        const invoices = await getAllInvoices(user);
+        if (Object.keys(invoices).length === 0) {
+            const invoicesToValidate = {}
+            res.render('dashboard', { user, invoicesToValidate })
+        } else {
+            const invoicesToValidate = filterUnValidatedInvoices(invoices)
+            res.render('dashboard', { user, invoicesToValidate })
+
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 invValidatorRouter.get('/validated-docs', checkAuthenticated, async function(req, res) {
-    let user = req.user;
-    const invoices = await getAllInvoices(user);
-    res.render('validated-docs', { user, invoices })
+    try {
+        let user = req.user;
+        const invoices = await getAllInvoices(user);
+        res.render('validated-docs', { user, invoices })
+
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res) {
-    let user = req.user;
-    let id = req.params.id;
-    let invoice = await getInvoice(id)
+    try {
 
-    let purchase_orders = await getAllPurchaseOrders(user)
+        let user = req.user;
+        let id = req.params.id;
+        let invoice = await getInvoice(id)
 
-    res.render('invoice-validator', { user, invoice, id, purchase_orders });
+        let purchase_orders = await getAllPurchaseOrders(user)
+
+        res.render('invoice-validator', { user, invoice, id, purchase_orders });
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 invValidatorRouter.get('/download-validated/:file_name', function(req, res) {

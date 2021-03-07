@@ -22,12 +22,17 @@ authRouter.post('/login', function(req, res) {
     let token = req.body.token;
 
     async function verify() {
-        const ticket = await client.verifyIdToken({
-            idToken: token,
-            audience: process.env.CLIENT_ID,
-        });
-        const payload = ticket.getPayload();
-        const userid = payload['sub'];
+        try {
+            const ticket = await client.verifyIdToken({
+                idToken: token,
+                audience: process.env.CLIENT_ID,
+            });
+            const payload = ticket.getPayload();
+            const userid = payload['sub'];
+
+        } catch (error) {
+            console.log(error.message);
+        }
 
     }
 

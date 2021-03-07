@@ -129,7 +129,7 @@ function getPoTotal() {
     let itemsArr = []
     $("#products-table tr:gt(0)").each(function() {
         let this_row = $(this);
-        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+        let item_gross = parseFloat($.trim(this_row.find('td:eq(4)').html()))
 
         itemsArr.push({
             item_gross
@@ -142,7 +142,7 @@ function getPoTotal() {
     })
     $('#po-ttl').text('')
     $('#po-ttl').append(sum)
-
+        // console.log(parseFloat($('#po-ttl').text()));
 }
 getPoTotal()
 
@@ -150,16 +150,16 @@ getPoTotal()
 // Save po to pdf
 function savePo() {
     $('.process-loader').fadeIn('slow')
-
+    getPoTotal()
     let itemsArr = []
     $("#products-table tr:gt(0)").each(function() {
         let this_row = $(this);
 
         let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = $.trim(this_row.find('td:eq(1)').html())
-        let item_net = $.trim(this_row.find('td:eq(2)').html())
-        let item_vat = $.trim(this_row.find('td:eq(3)').html())
-        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+        let item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
+        let item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
+        let item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
+        let item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
 
         itemsArr.push({
             item_descr,
@@ -169,7 +169,7 @@ function savePo() {
             item_gross
         })
     });
-
+    const po_ttl = Number(parseFloat($('#po-ttl').text()))
     const purchaseOrder = {
         poId: $('#po-ref').val(),
         supplier: $('#supplier').val(),
@@ -177,7 +177,7 @@ function savePo() {
         department: $('#department option:selected').text(),
         orderDate: $('#order-date').val(),
         comments: $('#comments').val(),
-        po_ttl: $('#po-ttl').val(),
+        po_ttl,
         itemsArr,
     }
 
@@ -288,17 +288,17 @@ function addSignatureToPo() {
 function validateDocs() {
 
     $('.process-loader').fadeIn('slow')
-
+    getPoTotal()
     let file_name = poId + '.pdf'
     let itemsArr = []
     $("#products-table tr:gt(0)").each(function() {
         let this_row = $(this);
 
         let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = $.trim(this_row.find('td:eq(1)').html())
-        let item_net = $.trim(this_row.find('td:eq(2)').html())
-        let item_vat = $.trim(this_row.find('td:eq(3)').html())
-        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+        let item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
+        let item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
+        let item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
+        let item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
 
         itemsArr.push({
             item_descr,
@@ -309,7 +309,7 @@ function validateDocs() {
         })
     });
 
-
+    const po_ttl = Number(parseFloat($('#po-ttl').text()))
     let purchaseOrder = {
         poId: poId,
         document_user: user,
@@ -321,6 +321,7 @@ function validateDocs() {
         status: 'po-awaiting-for-invoice',
         invoice_signed_by: user,
         invoice_signed_at: signed_at,
+        po_ttl,
         file_name,
         itemsArr
     }

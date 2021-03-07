@@ -155,13 +155,16 @@ function filterUnValidatedInvoices(invoices) {
 }
 
 function filterAwaitingPurchaseOrders(pos) {
-    let AwaitingPurchaseOrders = []
-    pos.forEach(po => {
-        if (po.status === 'po-awaiting-for-invoice') {
-            AwaitingPurchaseOrders.push(po)
-        }
-    })
-    return AwaitingPurchaseOrders
+    if (Object.keys(pos).length !== 0) {
+        let AwaitingPurchaseOrders = []
+        pos.forEach(po => {
+            if (po.status === 'po-awaiting-for-invoice') {
+                AwaitingPurchaseOrders.push(po)
+            }
+        })
+        return AwaitingPurchaseOrders
+    }
+    return {}
 }
 
 // ------------- Pos -----------------------------------
@@ -178,6 +181,18 @@ const getPurchaseOrder = async(req, res, next) => {
         } else {
             res.send(data.data())
         }
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
+const updatePurchaseOrder = async(req, res, next) => {
+    try {
+        const id = req.params.po_uid;
+        const status = req.body.status;
+        const po = await firestore.collection('purchase-orders').doc(id);
+        await po.update(status);
+        res.send('Invoice record updated successfully');
     } catch (error) {
         res.status(400).send(error.message);
     }
@@ -242,7 +257,8 @@ module.exports = {
     getAllPurchaseOrders,
     getPurchaseOrder,
     filterUnValidatedInvoices,
-    filterAwaitingPurchaseOrders
+    filterAwaitingPurchaseOrders,
+    updatePurchaseOrder
 }
 
 

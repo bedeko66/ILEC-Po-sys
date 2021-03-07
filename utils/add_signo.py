@@ -68,7 +68,12 @@ def add_signo_to_invoice(pageNum):
             pdfwriter = PyPDF2.PdfFileWriter()
             pdfwriter.addPage(p)
    
+            pages = pdf.getNumPages()
             for i in range(pdf.getNumPages()):
+                # if i == pageNum:
+                #     pdfwriter.addPage(pdf.getPage(num))
+
+                # pdfwriter.addPage(pdf.getPage(i))
                 if not i == pageNum:
                     pdfwriter.addPage(pdf.getPage(i))
 

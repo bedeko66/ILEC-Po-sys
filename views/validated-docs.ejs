@@ -56,21 +56,21 @@
             <hr class="horizontalLine">
             <h4 class="center">Your validated documents</h4>
             <div class="container">
-                <table id="to-validate" class="table table-light table-hover">
-                    <thead class="thead-dark">
-                        <tr class="center">
-                            <th>Invoice </th>
-                            <th>Signed by</th>
-                            <th>Signed at</th>
-                            <th>Purchase order </th>
-                            <th>Department</th>
-                            <th>Supplier</th>
-                            <th>Download</th>
-                        </tr>
-                    </thead>
-                    <%if (Object.keys(invoices).length === 0) { %>
-                        <p class="center">Currently there is no document to be validated</p>
-                        <% } else{ %>
+                <%if (Object.keys(invoices).length === 0) { %>
+                    <p class="center">Currently there is no document to be validated</p>
+                    <% } else{ %>
+                        <table id="to-validate" class="table table-light table-hover">
+                            <thead class="thead-dark">
+                                <tr class="center">
+                                    <th>Invoice </th>
+                                    <th>Signed by</th>
+                                    <th>Signed at</th>
+                                    <th>Purchase order </th>
+                                    <th>Department</th>
+                                    <th>Supplier</th>
+                                    <th>Download</th>
+                                </tr>
+                            </thead>
                             <% invoices.forEach(function(invoice) { %>
                                 <%if ( invoice.validated === true) { %>
                                     <tr class="center">
@@ -101,7 +101,7 @@
                                     <% } %>
                                         <% }); %>
                                             <% } %>
-                </table>
+                        </table>
             </div>
 
         </section>

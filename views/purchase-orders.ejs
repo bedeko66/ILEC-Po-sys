@@ -37,6 +37,9 @@
                         <a class="nav-link" href="/uploads"> Upload invoices<span class="sr-only"></span></a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/validated-docs"> Validated Docs<span class="sr-only"></span></a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/logout"> Sign out</a>
                     </li>
                 </ul>
@@ -60,6 +63,9 @@
                             <thead class="thead-dark">
                                 <tr class="center">
                                     <th>Po Id</th>
+                                    <th>Signed by</th>
+                                    <th>Signed at</th>
+                                    <th>Po TTL</th>
                                     <th>Department</th>
                                     <th>Supplier</th>
                                     <th>Download</th>
@@ -70,6 +76,15 @@
                                 <tr class="center">
                                     <td>
                                         <%= po.poId %>
+                                    </td>
+                                    <td>
+                                        <%= po.invoice_signed_by %>
+                                    </td>
+                                    <td>
+                                        <%= po.invoice_signed_at.split('G')[0] %>
+                                    </td>
+                                    <td>
+                                        <%= po.po_ttl %>
                                     </td>
                                     <td>
                                         <%= po.department %>

@@ -8,7 +8,7 @@ let updateFromExistingPo = false;
 const user = document.getElementById("user").innerText;
 let signed_at;
 let poId;
-
+let po_uid;
 
 
 // Pdf viewer
@@ -356,6 +356,7 @@ function validateDocs() {
             itemsArr
         }
 
+        //Update invoice
         $.ajax({
             type: "PUT",
             url: `/invoice/${id}`,
@@ -370,16 +371,33 @@ function validateDocs() {
                     src: 'static/templates/output2.pdf',
                     dest: 'static/validated/' + filename
                 }
-            }).done(function(o) { location.assign('/dashboard') })
+            }).done(function(o) {
+                //Update po status
+                let status = {
+                    status: 'po-accepted'
+                }
+                $.ajax({
+                    type: "PUT",
+                    url: `/purchase-order/${po_uid}`,
+                    data: {
+                        status
+                    }
+                }).done(function(o) {
+                    location.assign('/dashboard')
+                })
+            })
         });
 
     } else {
         let purchaseOrder = {
             validated: true,
-            status: 'accepted',
+            status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
         }
+
+
+        //Update invoice
         $.ajax({
             type: "PUT",
             url: `/invoice/${id}`,
@@ -388,17 +406,33 @@ function validateDocs() {
             }
         }).done(function(o) {
             $.ajax({
-                type: "POST",
-                url: "/copy",
-                data: {
-                    src: 'static/templates/output2.pdf',
-                    dest: 'static/validated/' + filename
-                }
-            }).done(function(o) { location.assign('/dashboard') })
+                    type: "POST",
+                    url: "/copy",
+                    data: {
+                        src: 'static/templates/output2.pdf',
+                        dest: 'static/validated/' + filename
+                    },
+                    error: function(request, status, error) {
+                        console.log(request.responseText);
+                    }
+                })
+                .done(function(o) {
+                    //Update po status
+                    let status = {
+                        status: 'po-accepted'
+                    }
+                    $.ajax({
+                        type: "PUT",
+                        url: `/purchase-order/${po_uid}`,
+                        data: {
+                            status
+                        }
+                    }).done(function(o) {
+                        location.assign('/dashboard')
+                    })
+                })
         });
     }
-
-
 }
 
 //-------------------------------------------------------------
@@ -443,6 +477,7 @@ function processSelectedPo() {
     $('#existing-po-sel').hide()
     let poId = $('#po-selection option:selected').text().split('_')[0]
     let id = $('#po-selection option:selected').attr('value')
+    po_uid = $('#po-selection option:selected').attr('value') //po-uid global
     let invoice_id = $('.validate').attr('id').split('!')[0];
 
     //cp po to templates //get po -update db
@@ -478,7 +513,6 @@ function processSelectedPo() {
                     $('#process-msg').show()
                     stateControl()
                     pdfViewer('../static/templates/merged.pdf', c3, context3)
-                        // pdfViewer('../static/templates/output2.pdf', c5, context5)
                     $('#pdf-render2').show()
 
                     $('.process-loader').fadeOut('slow')

@@ -10,10 +10,16 @@ const firestore = firebaseDb.firestore();
 
 
 purchaseOrderRouter.get('/purchase-orders', checkAuthenticated, async function(req, res) {
-    let user = req.user;
-    const pos = await getAllPurchaseOrders(user);
-    const unmatchedPos = filterAwaitingPurchaseOrders(pos)
-    res.render('purchase-orders', { user, unmatchedPos })
+    try {
+        let user = req.user;
+        const pos = await getAllPurchaseOrders(user);
+        const unmatchedPos = filterAwaitingPurchaseOrders(pos)
+        res.render('purchase-orders', { user, unmatchedPos })
+
+    } catch (error) {
+        console.log(error);
+    }
+
 });
 
 purchaseOrderRouter.get('/po-creator', checkAuthenticated, async function(req, res) {

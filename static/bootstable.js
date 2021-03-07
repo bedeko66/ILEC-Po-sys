@@ -128,6 +128,26 @@ function rowCancel(but) {
     FijModoNormal(but);
 }
 
+// function getPoTotal() {
+//     let itemsArr = []
+//     $("#products-table tr:gt(0)").each(function() {
+//         let this_row = $(this);
+//         let item_gross = $.trim(this_row.find('td:eq(4)').html())
+
+//         itemsArr.push({
+//             item_gross
+//         })
+//     });
+
+//     let sum = 0
+//     itemsArr.forEach(item => {
+//         sum += Number(item.item_gross)
+//     })
+//     $('#po-ttl').text('')
+//     $('#po-ttl').append(sum)
+//     console.log(parseFloat($('#po-ttl').text()));
+// }
+
 function rowEdit(but) { //Inicia la edición de una fila
     var $row = $(but).parents('tr'); //accede a la fila
     var $cols = $row.find('td'); //lee campos
@@ -140,6 +160,7 @@ function rowEdit(but) { //Inicia la edición de una fila
         $td.html(div + input); //fija contenido
     });
     FijModoEdit(but);
+    // getPoTotal()
 }
 
 function rowElim(but) { //Elimina la fila actual

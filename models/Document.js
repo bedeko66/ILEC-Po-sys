@@ -9,7 +9,7 @@ class DocumentItem {
 }
 
 class Document {
-    constructor(id, document_user, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, itemsArr, po_ttl, orig_file_name) {
+    constructor(id, document_user, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, po_ttl, itemsArr, orig_file_name) {
         this.id = id;
         this.document_user = document_user;
         this.poId = poId;

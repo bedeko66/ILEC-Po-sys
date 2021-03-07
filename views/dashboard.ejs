@@ -55,8 +55,8 @@
             <hr class="horizontalLine">
             <div class="container">
                 <%if (Object.keys(invoicesToValidate).length === 0) { %>
-                    <p class="center">Upload an invoice first!</p>
                     <h5 class="center">Currently there is no document to be validated</h5>
+                    <p class="center">Please upload first.</p>
                     <% } else{ %>
                         <% invoicesToValidate.forEach(function(invoice) { %>
                             <%if ( invoice.validated !== "true") { %>
