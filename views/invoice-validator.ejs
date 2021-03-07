@@ -64,13 +64,13 @@
 
         <section id="existing-po-sel">
             <div class="align-horizontaly m-3 center ">
-                <%if (Object.keys(purchase_orders).length === 0) { %>
+                <%if (Object.keys(unmatchedPos).length === 0) { %>
                     <p>There is no existing purchase order availabe, please create one first!</p>
                     <% } else{ %>
                         <h5>Select purchase order</h5>
                         <select style="width: 250px;" name="po-selection" id="po-selection" required>
                             <option disabled selected value> -- select an option -- </option>
-                            <% purchase_orders.forEach(function(po) { %>
+                            <% unmatchedPos.forEach(function(po) { %>
                                 <option value="<%= po.id %>"><%= po.poId %>_<%= po.supplier %></option>
                              <% }); %>
                         </select>

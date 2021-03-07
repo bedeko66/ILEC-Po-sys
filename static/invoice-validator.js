@@ -349,7 +349,7 @@ function validateDocs() {
             department: $('#department option:selected').text(),
             orderDate: $('#order-date').val(),
             comments: $('#comments').val(),
-            validated: true,
+            validated: "yes",
             status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
@@ -390,7 +390,7 @@ function validateDocs() {
 
     } else {
         let purchaseOrder = {
-            validated: true,
+            validated: "yes",
             status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,

@@ -147,7 +147,7 @@ const deletePo = async(req, res, next) => {
 function filterUnValidatedInvoices(invoices) {
     let UnValidatedInvoices = []
     invoices.forEach(invoice => {
-        if (invoice.validated === false) {
+        if (invoice.validated === "no") {
             UnValidatedInvoices.push(invoice)
         }
     })

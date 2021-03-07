@@ -72,7 +72,7 @@
                                 </tr>
                             </thead>
                             <% invoices.forEach(function(invoice) { %>
-                                <%if ( invoice.validated === true) { %>
+                                <%if ( invoice.validated === "yes") { %>
                                     <tr class="center">
                                         <td>
                                             <%= invoice.orig_file_name %>

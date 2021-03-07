@@ -2,7 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const invValidatorRouter = express.Router();
 const { checkAuthenticated } = require('../../config/googleAuth');
-const { getAllInvoices, getInvoice, getAllPurchaseOrders, filterUnValidatedInvoices } = require('../../controllers/documentsController')
+const { getAllInvoices, getInvoice, getAllPurchaseOrders, filterUnValidatedInvoices, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
 const multer = require('multer');
 
 const firebaseDb = require('../../config/firebase');
@@ -46,8 +46,9 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
         let invoice = await getInvoice(id)
 
         let purchase_orders = await getAllPurchaseOrders(user)
+        let unmatchedPos = filterAwaitingPurchaseOrders(purchase_orders)
 
-        res.render('invoice-validator', { user, invoice, id, purchase_orders });
+        res.render('invoice-validator', { user, invoice, id, unmatchedPos });
     } catch (error) {
         console.log(error);
     }
@@ -171,7 +172,7 @@ invValidatorRouter.post('/uploads/:user', checkAuthenticated, upload.array('invo
                             document_user: user,
                             file_name: d.name,
                             orig_file_name: d.name,
-                            validated: false,
+                            validated: "no",
                             itemsArr: [{ item_descr: "", item_gross: "", item_net: "", item_gty: "", item_vat: "" }]
                         };
 
