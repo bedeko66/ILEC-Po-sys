@@ -121,9 +121,9 @@ let view_invoice = '../static/templates/orig_invoice.pdf';
 pdfViewer(view_invoice, c2, context2)
 
 // Generate PoId -------------------------------------
-
+let dptLtr;
 $('#department').on('click', function() {
-    let dptLtr = $('#department option:selected').text()[0];
+    dptLtr = $('#department option:selected').text()[0];
     poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
     $('#po-ref').val(poId);
 });
@@ -372,19 +372,7 @@ function validateDocs() {
                     dest: 'static/validated/' + filename
                 }
             }).done(function(o) {
-                //Update po status
-                let status = {
-                    status: 'po-accepted'
-                }
-                $.ajax({
-                    type: "PUT",
-                    url: `/purchase-order/${po_uid}`,
-                    data: {
-                        status
-                    }
-                }).done(function(o) {
-                    location.assign('/dashboard')
-                })
+                location.assign('/dashboard')
             })
         });
 

@@ -70,7 +70,7 @@ invValidatorRouter.post('/generate-purchase-order', function(req, res) {
     poPdfpy.stdout.on('data', function(data) {
         console.log(data.toString());
         res.write(data);
-        return res.end('end');
+        res.end('end');
     });
 
 })
