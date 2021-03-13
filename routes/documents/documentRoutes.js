@@ -1,12 +1,12 @@
 const express = require('express');
 const documentRouter = express.Router();
-const { addInvoice, getAllInvoices_, getInvoice, updateInvoice, deletePo, getPurchaseOrder, updatePurchaseOrder } = require('../../controllers/documentsController');
+const { addDocument, getAllDocuments, getDocument, updateDocument, deletePo, getPurchaseOrder, updatePurchaseOrder } = require('../../controllers/documentsController');
 
 
-documentRouter.post('/invoice', addInvoice);
-documentRouter.get('/invoices', getAllInvoices_);
-documentRouter.get('/invoice/:id', getInvoice);
-documentRouter.put('/invoice/:id', updateInvoice);
+documentRouter.post('/invoice', addDocument);
+documentRouter.get('/invoices', getAllDocuments);
+documentRouter.get('/invoice/:id', getDocument);
+documentRouter.put('/invoice/:id', updateDocument);
 
 
 documentRouter.get('/purchase-order/:id', getPurchaseOrder);

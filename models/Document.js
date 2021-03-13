@@ -1,42 +1,87 @@
-class DocumentItem {
-    constructor(item_description, item_qty, item_net, item_vat, item_gross) {
-        item_description = this.item_description;
-        item_qty = this.item_qty;
-        item_net = this.item_net;
-        item_vat = this.item_vat;
-        item_gross = this.item_gross;
+const mongoose = require('mongoose')
+
+const DocItemSchema = new mongoose.Schema({
+    item_descr: {
+        type: String,
+    },
+    item_gross: {
+        type: Number,
+    },
+    item_net: {
+        type: Number,
+    },
+    item_gty: {
+        type: Number,
+    },
+    item_vat: {
+        type: Number,
     }
-}
 
-class Document {
-    constructor(id, document_user, poId, invoiceId, supplier, department, manager, orderDate, comments, validated, status, invoice_signed_by, invoice_signed_at, file_name, invoice_date, invoice_net, vat_amount, invoice_ttl, po_ttl, itemsArr, orig_file_name) {
-        this.id = id;
-        this.document_user = document_user;
-        this.poId = poId;
-        this.invoiceId = invoiceId;
-        this.supplier = supplier;
-        this.department = department;
-        this.manager = manager;
-        this.orderDate = orderDate;
-        this.comments = comments;
-        this.validated = validated;
-        this.status = status;
-        this.invoice_signed_by = invoice_signed_by;
-        this.invoice_signed_at = invoice_signed_at;
-        this.file_name = file_name;
+})
 
-        this.invoice_date = invoice_date;
-        this.invoice_net = invoice_net;
-        this.vat_amount = vat_amount;
-        this.invoice_ttl = invoice_ttl;
-        this.po_ttl = po_ttl;
-        this.itemsArr = itemsArr;
-        this.orig_file_name = orig_file_name;
-
+const DocumentSchema = new mongoose.Schema({
+    document_user: {
+        type: String,
+    },
+    poId: {
+        type: String,
+    },
+    invoiceId: {
+        type: String,
+    },
+    supplier: {
+        type: String,
+    },
+    department: {
+        type: String,
+    },
+    manager: {
+        type: String,
+    },
+    orderDate: {
+        type: Date,
+    },
+    comments: {
+        type: String,
+    },
+    validated: {
+        type: Boolean,
+    },
+    status: {
+        type: String,
+    },
+    invoice_signed_by: {
+        type: String,
+    },
+    invoice_signed_at: {
+        type: Date,
+        default: Date.now
+    },
+    file_name: {
+        type: String,
+    },
+    invoice_date: {
+        type: Date,
+    },
+    invoice_net: {
+        type: Number,
+    },
+    vat_amount: {
+        type: Number,
+    },
+    invoice_ttl: {
+        type: Number,
+    },
+    po_ttl: {
+        type: Number,
+    },
+    itemsArr: {
+        type: [DocItemSchema],
+    },
+    orig_file_name: {
+        type: String,
     }
-}
 
-module.exports = {
-    Document,
-    DocumentItem
-};
+})
+
+module.exports = mongoose.model('Document', DocumentSchema)

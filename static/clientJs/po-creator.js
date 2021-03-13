@@ -14,12 +14,6 @@ const context2 = c2.getContext('2d');
 const c3 = document.querySelector('#pdf-render2');
 const context3 = c3.getContext('2d');
 
-// const c4 = document.querySelector('#pdf-render3');
-// const context4 = c4.getContext('2d');
-
-// const c5 = document.querySelector('#pdf-render4');
-// const context5 = c5.getContext('2d');
-
 function pdfViewer(url, canvas2, ctx2) {
 
     let pdfDoc = null,
@@ -118,12 +112,13 @@ pdfViewer(view_invoice, c2, context2)
 
 // Generate PoId -------------------------------------
 let dptLtr;
-$('#department').on('click', function() {
-    dptLtr = $('#department option:selected').text()[0];
-    poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
-    $('#po-ref').val(poId);
+$(document).ready(function() {
+    $('#department').on('click', function() {
+        dptLtr = $('#department option:selected').text()[0];
+        poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
+        $('#po-ref').val(poId);
+    });
 });
-
 
 function getPoTotal() {
     let itemsArr = []
@@ -145,21 +140,29 @@ function getPoTotal() {
         // console.log(parseFloat($('#po-ttl').text()));
 }
 getPoTotal()
-
+    //-------------------------------------------------------------
+$('#products-table').SetEditable({
+    $addButton: $('#addNewRow')
+});
 //-------------------------------------------------------------
 // Save po to pdf
 function savePo() {
     $('.process-loader').fadeIn('slow')
     getPoTotal()
     let itemsArr = []
+    let this_row
+    let item_descr;
+    let item_qty
+    let item_net
+    let item_vat
+    let item_gross
     $("#products-table tr:gt(0)").each(function() {
-        let this_row = $(this);
-
-        let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
-        let item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
-        let item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
-        let item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
+        this_row = $(this);
+        item_descr = $.trim(this_row.find('td:eq(0)').html());
+        item_qty = parseFloat($.trim(this_row.find('td:eq(1)').html()));
+        item_net = parseFloat($.trim(this_row.find('td:eq(2)').html()));
+        item_vat = parseFloat($.trim(this_row.find('td:eq(3)').html()));
+        item_gross = parseFloat($.trim(this_row.find('td:eq(4)').html()));
 
         itemsArr.push({
             item_descr,
@@ -169,7 +172,7 @@ function savePo() {
             item_gross
         })
     });
-    const po_ttl = Number(parseFloat($('#po-ttl').text()))
+    const po_ttl = parseFloat($('#po-ttl').text());
     const purchaseOrder = {
         poId: $('#po-ref').val(),
         supplier: $('#supplier').val(),
@@ -291,26 +294,19 @@ function validateDocs() {
     getPoTotal()
     let file_name = poId + '.pdf'
     let itemsArr = []
+    let this_row;
     $("#products-table tr:gt(0)").each(function() {
-        let this_row = $(this);
-
-        let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
-        let item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
-        let item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
-        let item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
-
+        this_row = $(this);
         itemsArr.push({
-            item_descr,
-            item_qty,
-            item_net,
-            item_vat,
-            item_gross
+            item_descr: $.trim(this_row.find('td:eq(0)').html()),
+            item_qty: parseFloat($.trim(this_row.find('td:eq(1)').html())),
+            item_net: parseFloat($.trim(this_row.find('td:eq(2)').html())),
+            item_vat: parseFloat($.trim(this_row.find('td:eq(3)').html())),
+            item_gross: parseFloat($.trim(this_row.find('td:eq(4)').html()))
         })
     });
 
-    const po_ttl = Number(parseFloat($('#po-ttl').text()))
-    let purchaseOrder = {
+    const purchaseOrder = {
         poId: poId,
         document_user: user,
         supplier: $('#supplier').val(),
@@ -319,32 +315,24 @@ function validateDocs() {
         orderDate: $('#order-date').val(),
         comments: $('#comments').val(),
         status: 'po-awaiting-for-invoice',
-        invoice_signed_by: user,
-        invoice_signed_at: signed_at,
-        po_ttl,
+        po_signed_by: user,
+        po_signed_at: signed_at,
+        po_ttl: parseFloat($('#po-ttl').text()),
         file_name,
         itemsArr
     }
-
+    console.log(purchaseOrder);
     $.ajax({
         type: "POST",
         url: '/add-purchase-order',
         data: {
-            purchaseOrder
+            purchaseOrder,
+            src: 'static/templates/output.pdf',
+            dest: 'static/documents/purchase-orders/' + file_name
         }
     }).done(function(o) {
-        $.ajax({
-            type: "POST",
-            url: "/copy",
-            data: {
-                src: 'static/templates/output.pdf',
-                dest: 'static/purchase-orders/' + file_name
-            }
-        }).done(function(o) {
-            location.assign('/purchase-orders')
-            $('.process-loader').fadeOut('slow')
-
-        })
+        location.assign('/purchase-orders')
+        $('.process-loader').fadeOut('slow')
     });
 
 }

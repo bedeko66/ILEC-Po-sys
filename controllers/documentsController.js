@@ -1,131 +1,145 @@
-const firebaseDb = require('../config/firebase');
-const { Document, DocumentItem } = require('../models/Document')
-const firestore = firebaseDb.firestore();
+// const firebaseDb = require('../config/firebase');
+const Document = require('../models/Document')
+const PurchaseOrder = require('../models/PurchaseOrder')
+    // const firestore = firebaseDb.firestore();
 
 
 
-const addInvoice = async(req, res, next) => {
+const addDocument = async(req, res, next) => {
     try {
-        const data = req.body;
-        await firestore.collection('invoices').doc().set(data);
+        const doc = new Document(req.body);
+        await doc.save()
         res.send('Record saved successfuly');
     } catch (error) {
-        res.status(400).send(error.message);
+        res.status(500).send(error);
 
     }
 }
 
 
-const getAllInvoices_ = async(req, res, next) => {
+
+// const addInvoice = async(req, res, next) => {
+//     try {
+//         const data = req.body;
+//         await firestore.collection('invoices').doc().set(data);
+//         res.send('Record saved successfuly');
+//     } catch (error) {
+//         res.status(400).send(error.message);
+
+//     }
+// }
+const getAllDocuments = async(user) => {
+    console.log(user)
+    const docs = await Document.find().where('document_user').eq(user.lastName);
     try {
-        const invoices = await firestore.collection('invoices');
-        const data = await invoices.get();
-        const invoicesArray = [];
-
-        if (data.empty) {
-            res.status(404).send('No invoice record found');
-        } else {
-            data.forEach(doc => {
-
-                const invoice = new Document(
-                    doc.id,
-                    doc.data().poId,
-                    doc.data().invoiceId,
-                    doc.data().supplier,
-                    doc.data().department,
-                    doc.data().manager,
-                    doc.data().orderDate,
-                    doc.data().comments,
-                    doc.data().validated,
-                    doc.data().status,
-                    doc.data().invoice_signed_by,
-                    doc.data().invoice_signed_at,
-                    doc.data().file_name,
-                    doc.data().invoice_date,
-                    doc.data().invoice_net,
-                    doc.data().vat_amount,
-                    doc.data().invoice_ttl,
-                    doc.data().po_ttl,
-                    doc.data().itemsArr,
-                )
-                invoicesArray.push(invoice)
-            })
-            res.send(invoicesArray)
-        }
-    } catch (error) {
-        res.status(400).send(error.message);
+        return docs;
+    } catch (err) {
+        res.status(500).send(err);
     }
 }
 
-const getAllInvoices = async(user) => {
+
+const getDocument = async(id) => {
     try {
-        const invoices = await firestore.collection('invoices');
-        const data = await invoices.get();
-        const invoicesArray = [];
+        const doc = await Document.findById(id);
 
-        if (data.empty) {
-            return {}
-        } else {
-            data.forEach(doc => {
-                if (doc.data().document_user === user.name) {
-                    const invoice = new Document(
-                        doc.id,
-                        doc.data().document_user,
-                        doc.data().poId,
-                        doc.data().invoiceId,
-                        doc.data().supplier,
-                        doc.data().department,
-                        doc.data().manager,
-                        doc.data().orderDate,
-                        doc.data().comments,
-                        doc.data().validated,
-                        doc.data().status,
-                        doc.data().invoice_signed_by,
-                        doc.data().invoice_signed_at,
-                        doc.data().file_name,
-                        doc.data().invoice_date,
-                        doc.data().invoice_net,
-                        doc.data().vat_amount,
-                        doc.data().invoice_ttl,
-                        doc.data().po_ttl,
-                        doc.data().itemsArr,
-                        doc.data().orig_file_name
-                    )
-
-                    invoicesArray.push(invoice)
-                }
-
-            })
-            return invoicesArray;
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const getInvoice = async(id) => {
-    try {
-        const invoice = await firestore.collection('invoices').doc(id);
-        const data = await invoice.get();
-
-        if (!data.exists) {
+        if (!doc) {
             return ('Invoice with the given ID not found');
 
         } else {
-            return (data.data());
+            return (doc);
         }
     } catch (error) {
         console.log(error.message);
     }
 }
 
+// const getInvoice = async(id) => {
+//     try {
+//         const invoice = await firestore.collection('invoices').doc(id);
+//         const data = await invoice.get();
 
-const updateInvoice = async(req, res, next) => {
+//         if (!data.exists) {
+//             return ('Invoice with the given ID not found');
+
+//         } else {
+//             return (data.data());
+//         }
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
+
+const updateDocument = async(req, res, next) => {
     try {
-        const id = req.params.id;
-        const data = req.body.purchaseOrder;
-        const invoice = await firestore.collection('invoices').doc(id);
-        await invoice.update(data);
+        await Document.findByIdAndUpdate(req.params.id, req.body.purchaseOrder)
+        await Document.save()
+        res.send('Invoice record updated successfully');
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
+// const updateInvoice = async(req, res, next) => {
+//     try {
+//         const id = req.params.id;
+//         const data = req.body.purchaseOrder;
+//         const invoice = await firestore.collection('invoices').doc(id);
+//         await invoice.update(data);
+//         res.send('Invoice record updated successfully');
+//     } catch (error) {
+//         res.status(400).send(error.message);
+//     }
+// }
+
+// const updateInvoice = async(req, res, next) => {
+//     try {
+//         const id = req.params.id;
+//         const data = req.body.purchaseOrder;
+
+//         const invoice = await firestore.collection('invoices').doc(id);
+//         await invoice.update(data);
+//         res.send('Invoice record updated successfully');
+//     } catch (error) {
+//         res.status(400).send(error.message);
+//     }
+// }
+
+// const updateInvoice = async(req, res, next) => {
+//     try {
+//         const id = req.params.id;
+//         const data = req.body.purchaseOrder;
+//         const invoice = await firestore.collection('invoices').doc(id);
+//         await invoice.update(data);
+//         res.send('Invoice record updated successfully');
+//     } catch (error) {
+//         res.status(400).send(error.message);
+//     }
+// }
+
+
+// ------------- Pos -----------------------------------
+
+const getPurchaseOrder = async(req, res, next) => {
+    try {
+        const po = await PurchaseOrder.findById(req.params.id);
+
+        if (!po) {
+            res.status(404).send('Purchase Order with the given ID not found');
+
+        } else { res.send(po) }
+
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
+
+const updatePurchaseOrder = async(req, res, next) => {
+    try {
+
+        await PurchaseOrder.findByIdAndUpdate(req.params.po_uid, req.body.status)
+        await PurchaseOrder.save()
+
         res.send('Invoice record updated successfully');
     } catch (error) {
         res.status(400).send(error.message);
@@ -134,27 +148,41 @@ const updateInvoice = async(req, res, next) => {
 
 const deletePo = async(req, res, next) => {
     try {
-        const id = req.params.id;
-        await firestore.collection('purchase-orders').doc(id).delete();
-        res.send('Record deleted successfully')
+        const po = await PurchaseOrder.findByIdAndDelete(req.params.id)
+        if (!po) res.status(404).send("No item found")
+        res.status(200).send('Record deleted successfully')
     } catch (error) {
-        res.status(400).send(error.message);
+        res.status(500).send(error.message);
+    }
+}
+const getAllPurchaseOrders = async(document_user) => {
+    try {
+        const pos = await PurchaseOrder.find().where('document_user').eq(document_user);
+        if (!pos) {
+            return {}
+        } else {
+            return pos;
+        }
+
+    } catch (err) {
+        res.status(500).send(err);
     }
 }
 
-// ---- Filters ---------------------
 
-function filterUnValidatedInvoices(invoices) {
+// ---- Filter functions ---------------------
+
+const filterUnValidatedInvoices = invoices => {
     let UnValidatedInvoices = []
     invoices.forEach(invoice => {
-        if (invoice.validated === "no") {
+        if (invoice.validated === false) {
             UnValidatedInvoices.push(invoice)
         }
     })
     return UnValidatedInvoices
 }
 
-function filterAwaitingPurchaseOrders(pos) {
+const filterAwaitingPurchaseOrders = pos => {
     if (Object.keys(pos).length !== 0) {
         let AwaitingPurchaseOrders = []
         pos.forEach(po => {
@@ -167,92 +195,11 @@ function filterAwaitingPurchaseOrders(pos) {
     return {}
 }
 
-// ------------- Pos -----------------------------------
-
-const getPurchaseOrder = async(req, res, next) => {
-    try {
-        const id = req.params.id;
-        const po = await firestore.collection('purchase-orders').doc(id);
-        const data = await po.get();
-
-        if (!data.exists) {
-            res.status(404).send('Purchase Order with the given ID not found');
-
-        } else {
-            res.send(data.data())
-        }
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-}
-
-const updatePurchaseOrder = async(req, res, next) => {
-    try {
-        const id = req.params.po_uid;
-        const status = req.body.status;
-        const po = await firestore.collection('purchase-orders').doc(id);
-        await po.update(status);
-        res.send('Invoice record updated successfully');
-    } catch (error) {
-        res.status(400).send(error.message);
-    }
-}
-
-
-const getAllPurchaseOrders = async(user) => {
-    try {
-        const purchaseOrders = await firestore.collection('purchase-orders');
-        const data = await purchaseOrders.get();
-        const purchaseOrdersArray = [];
-
-        if (data.empty) {
-            return {};
-        } else {
-            data.forEach(doc => {
-
-                if (doc.data().document_user === user.name) {
-
-                    const po = new Document(
-                        doc.id,
-                        doc.data().document_user,
-                        doc.data().poId,
-                        doc.data().invoiceId,
-                        doc.data().supplier,
-                        doc.data().department,
-                        doc.data().manager,
-                        doc.data().orderDate,
-                        doc.data().comments,
-                        doc.data().validated,
-                        doc.data().status,
-                        doc.data().invoice_signed_by,
-                        doc.data().invoice_signed_at,
-                        doc.data().file_name,
-                        doc.data().invoice_date,
-                        doc.data().invoice_net,
-                        doc.data().vat_amount,
-                        doc.data().invoice_ttl,
-                        doc.data().po_ttl,
-                        doc.data().itemsArr,
-                        doc.data().orig_file_name
-                    )
-
-                    purchaseOrdersArray.push(po)
-                }
-
-            })
-            return purchaseOrdersArray;
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
 module.exports = {
-    addInvoice,
-    getAllInvoices,
-    getAllInvoices_,
-    getInvoice,
-    updateInvoice,
+    addDocument,
+    getAllDocuments,
+    getDocument,
+    updateDocument,
     deletePo,
     getAllPurchaseOrders,
     getPurchaseOrder,

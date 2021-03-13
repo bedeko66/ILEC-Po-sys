@@ -1,18 +1,24 @@
 const fs = require('fs');
 const express = require('express');
 const invValidatorRouter = express.Router();
-const { checkAuthenticated } = require('../../config/googleAuth');
-const { getAllInvoices, getInvoice, getAllPurchaseOrders, filterUnValidatedInvoices, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
+const Document = require('../../models/Document')
+const User = require('../../models/User')
+const { checkAuthenticated } = require('../../middlewares/auth');
+const { getAllDocuments, getDocument, getAllPurchaseOrders, filterUnValidatedInvoices, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
 const multer = require('multer');
 
-const firebaseDb = require('../../config/firebase');
-const firestore = firebaseDb.firestore();
-
-
+function copyInvoiceToTemplates(src, dest) {
+    fs.copyFile(src, dest, (err) => {
+        if (err) { throw err } else {
+            console.log(`${src} was copied to ${dest}`);
+        }
+    });
+    next()
+}
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
     try {
         let user = req.user;
-        const invoices = await getAllInvoices(user);
+        const invoices = await getAllDocuments(user);
         if (Object.keys(invoices).length === 0) {
             const invoicesToValidate = {}
             res.render('dashboard', { user, invoicesToValidate })
@@ -24,33 +30,54 @@ invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res
 
     } catch (error) {
         console.log(error);
+        res.render('error/500')
     }
 });
 
 invValidatorRouter.get('/validated-docs', checkAuthenticated, async function(req, res) {
     try {
         let user = req.user;
-        const invoices = await getAllInvoices(user);
+        const invoices = await getAllDocuments(user);
         res.render('validated-docs', { user, invoices })
 
     } catch (error) {
         console.log(error);
+        res.render('error/500')
     }
 });
 
-invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res) {
+invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res, next) {
     try {
 
-        let user = req.user;
         let id = req.params.id;
-        let invoice = await getInvoice(id)
-
-        let purchase_orders = await getAllPurchaseOrders(user)
+        console.log(id);
+        let invoice = await getDocument(id)
+        console.log(invoice);
+        let purchase_orders = await getAllPurchaseOrders(invoice.document_user)
+        console.log(purchase_orders);
         let unmatchedPos = filterAwaitingPurchaseOrders(purchase_orders)
 
+        //copy invoice to templates
+        let src = 'static/documents/to-validate/' + invoice.file_name;
+        let dest = 'static/templates/orig_invoice.pdf';
+        copyInvoiceToTemplates(src, dest)
+
+        const user = await User.find().where('document_user').eq(document_user)
+        console.log(user);
         res.render('invoice-validator', { user, invoice, id, unmatchedPos });
+
+        // fs.copyFile(src, dest, (err) => {
+        //     if (err) { throw err } else {
+        //         console.log(`${src} was copied to ${dest}`);
+        //         // res.status(200).send('done');
+        //     }
+        // });
+
+
+
     } catch (error) {
         console.log(error);
+        res.render('error/500')
     }
 });
 
@@ -135,7 +162,7 @@ invValidatorRouter.get('/download', function(req, res) {
 
 let storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './static/to-validate/')
+        cb(null, './static/documents/to-validate/')
     },
     filename: function(req, file, cb) {
         cb(null, file.originalname)
@@ -157,36 +184,38 @@ invValidatorRouter.post('/uploads/:user', checkAuthenticated, upload.array('invo
             });
         } else {
             let data = [];
-
-            // iterate over all invoices
             invoices.map(p => data.push({
                 name: p.originalname,
                 mimetype: p.mimetype,
                 size: p.size
             }));
 
-            // send response
-            try {
-                data.forEach(async d => {
-                        let invoice = {
-                            document_user: user,
-                            file_name: d.name,
-                            orig_file_name: d.name,
-                            validated: "no",
-                            itemsArr: [{ item_descr: "", item_gross: "", item_net: "", item_gty: "", item_vat: "" }]
-                        };
+            let doc;
+            data.forEach(async d => {
+                try {
+                    doc = new Document({
+                        document_user: user,
+                        file_name: d.name,
+                        orig_file_name: d.name,
+                        validated: false,
+                        itemsArr: [{ item_descr: "", item_gross: 0, item_net: 0, item_gty: 0, item_vat: 0 }]
+                    });
 
-                        await firestore.collection('invoices').doc().set(invoice);
-                    })
-                    // res.send('Record saved successfuly');
-            } catch (error) {
-                res.status(400).send(error.message);
-            }
-            res.redirect("/dashboard")
+                    await doc.save()
+                    res.redirect("/dashboard")
+
+                } catch (error) {
+                    res.render('error/500')
+                    console.log(error);
+                }
+            })
+
+
         }
 
     } catch (err) {
         res.status(500).send(err.message);
+        res.render('error/500')
     }
 });
 

@@ -121,11 +121,15 @@ let view_invoice = '../static/templates/orig_invoice.pdf';
 pdfViewer(view_invoice, c2, context2)
 
 // Generate PoId -------------------------------------
-let dptLtr;
-$('#department').on('click', function() {
-    dptLtr = $('#department option:selected').text()[0];
-    poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
-    $('#po-ref').val(poId);
+$(document).ready(function() {
+    let dptLtr;
+    $('#department').on('click', function() {
+        dptLtr = $('#department option:selected').text()[0];
+        poId = `${dptLtr}-${Math.round(Math.random() * (90000000000 - 10000000000) + 10000000000)}`;
+        // setTimeout(function() {
+        $('#po-ref').val(poId);
+        // }, 500);
+    });
 });
 
 
@@ -150,20 +154,31 @@ function getPoTotal() {
 }
 getPoTotal()
 
+// ---------------------
+$(document).ready(function() {
+    $('#products-table').SetEditable({
+        $addButton: $('#addNewRow')
+    });
+});
 //-------------------------------------------------------------
 // Save po to pdf
 function savePo() {
     $('.process-loader').fadeIn('slow')
 
     let itemsArr = []
+    let this_row
+    let item_descr = '';
+    let item_qty = 0;
+    let item_net = 0;
+    let item_vat = 0;
+    let item_gross = 0;
     $("#products-table tr:gt(0)").each(function() {
-        let this_row = $(this);
-
-        let item_descr = $.trim(this_row.find('td:eq(0)').html());
-        let item_qty = $.trim(this_row.find('td:eq(1)').html())
-        let item_net = $.trim(this_row.find('td:eq(2)').html())
-        let item_vat = $.trim(this_row.find('td:eq(3)').html())
-        let item_gross = $.trim(this_row.find('td:eq(4)').html())
+        this_row = $(this);
+        item_descr = $.trim(this_row.find('td:eq(0)').html());
+        item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
+        item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
+        item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
+        item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
 
         itemsArr.push({
             item_descr,
@@ -323,14 +338,19 @@ function validateDocs() {
     if (updateFromExistingPo === false) {
 
         let itemsArr = []
+        let this_row
+        let item_descr = '';
+        let item_qty = 0;
+        let item_net = 0;
+        let item_vat = 0;
+        let item_gross = 0;
         $("#products-table tr:gt(0)").each(function() {
-            let this_row = $(this);
-
-            let item_descr = $.trim(this_row.find('td:eq(0)').html());
-            let item_qty = $.trim(this_row.find('td:eq(1)').html())
-            let item_net = $.trim(this_row.find('td:eq(2)').html())
-            let item_vat = $.trim(this_row.find('td:eq(3)').html())
-            let item_gross = $.trim(this_row.find('td:eq(4)').html())
+            this_row = $(this);
+            item_descr = $.trim(this_row.find('td:eq(0)').html());
+            item_qty = Number(parseFloat($.trim(this_row.find('td:eq(1)').html())));
+            item_net = Number(parseFloat($.trim(this_row.find('td:eq(2)').html())));
+            item_vat = Number(parseFloat($.trim(this_row.find('td:eq(3)').html())));
+            item_gross = Number(parseFloat($.trim(this_row.find('td:eq(4)').html())));
 
             itemsArr.push({
                 item_descr,
@@ -342,14 +362,14 @@ function validateDocs() {
         });
 
 
-        let purchaseOrder = {
+        const purchaseOrder = {
             poId: poId,
             supplier: $('#supplier').val(),
             manager: $('#attention').val(),
             department: $('#department option:selected').text(),
             orderDate: $('#order-date').val(),
             comments: $('#comments').val(),
-            validated: "yes",
+            validated: true,
             status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
@@ -369,7 +389,7 @@ function validateDocs() {
                 url: "/copy",
                 data: {
                     src: 'static/templates/output2.pdf',
-                    dest: 'static/validated/' + filename
+                    dest: 'static/documents/validated/' + filename
                 }
             }).done(function(o) {
                 location.assign('/dashboard')
@@ -377,8 +397,8 @@ function validateDocs() {
         });
 
     } else {
-        let purchaseOrder = {
-            validated: "yes",
+        const purchaseOrder = {
+            validated: true,
             status: 'po-accepted',
             invoice_signed_by: user,
             invoice_signed_at: signed_at,
@@ -398,7 +418,7 @@ function validateDocs() {
                     url: "/copy",
                     data: {
                         src: 'static/templates/output2.pdf',
-                        dest: 'static/validated/' + filename
+                        dest: 'static/documents/validated/' + filename
                     },
                     error: function(request, status, error) {
                         console.log(request.responseText);
@@ -473,7 +493,7 @@ function processSelectedPo() {
         type: "POST",
         url: "/copy",
         data: {
-            src: 'static/purchase-orders/' + poId + '.pdf',
+            src: 'static/documents/purchase-orders/' + poId + '.pdf',
             dest: 'static/templates/purchase-order.pdf'
         }
     }).done(function(o) {

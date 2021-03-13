@@ -5,19 +5,21 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="icon" href="data:,">
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy" content="img-src https: data:;">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="../static/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/fonts.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="../static/css/style.css">
     <title>Uploads</title>
 </head>
 
 <body>
     <section class="header center">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <a class="navbar-brand"><img class="m-4" style="border-radius:20px;" width="30" height="30" src="<%= user.picture %>" alt="<%= user.name %>"> ILEC Purchase Tracker </a>
+            <a class="navbar-brand"><img class="m-4" style="border-radius:20px;" width="30" height="30" src="<%= user.image %>" alt="<%= user.displayName %>"> ILEC Purchase Tracker </a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -30,7 +32,7 @@
                         <a class="nav-link" href="/uploads">Invoice Uploads<span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/logout">Sign Out</a>
+                        <a class="nav-link" href="/auth/logout">Sign Out</a>
                     </li>
                 </ul>
             </div>
@@ -40,7 +42,7 @@
     <div class="container">
         <section class="uploads center m-5">
             <h2 class="m-6">Pick your files to upload</h2>
-            <form action="/uploads/<%= user.name %>" method="POST" enctype="multipart/form-data">
+            <form action="/uploads/<%= user.lastName %>" method="POST" enctype="multipart/form-data">
                 <div class="center m-1">
                     <input name="invoice" type="file" multiple>
                 </div>
@@ -48,9 +50,8 @@
             </form>
         </section>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <script src="../static/libs/jquery-3.6.0.min.js"></script>
+    <script src="../static/libs/bootstrap/js/bootstrap.js"></script>
 </body>
 
 </html>
