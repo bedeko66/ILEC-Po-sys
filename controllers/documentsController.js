@@ -1,9 +1,5 @@
-// const firebaseDb = require('../config/firebase');
 const Document = require('../models/Document')
 const PurchaseOrder = require('../models/PurchaseOrder')
-    // const firestore = firebaseDb.firestore();
-
-
 
 const addDocument = async(req, res, next) => {
     try {
@@ -17,17 +13,6 @@ const addDocument = async(req, res, next) => {
 }
 
 
-
-// const addInvoice = async(req, res, next) => {
-//     try {
-//         const data = req.body;
-//         await firestore.collection('invoices').doc().set(data);
-//         res.send('Record saved successfuly');
-//     } catch (error) {
-//         res.status(400).send(error.message);
-
-//     }
-// }
 const getAllDocuments = async(user) => {
     console.log(user)
     const docs = await Document.find().where('document_user').eq(user.lastName);
@@ -54,68 +39,18 @@ const getDocument = async(id) => {
     }
 }
 
-// const getInvoice = async(id) => {
-//     try {
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         const data = await invoice.get();
 
-//         if (!data.exists) {
-//             return ('Invoice with the given ID not found');
-
-//         } else {
-//             return (data.data());
-//         }
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// }
-
-const updateDocument = async(req, res, next) => {
+const updateDocument = async(_id, purchaseOrder) => {
     try {
-        await Document.findByIdAndUpdate(req.params.id, req.body.purchaseOrder)
-        await Document.save()
-        res.send('Invoice record updated successfully');
+        console.log(purchaseOrder)
+        await Document.findOneAndUpdate({ _id }, purchaseOrder)
+            // await Document.save()
+        return ('Invoice record updated successfully');
     } catch (error) {
-        res.status(400).send(error.message);
+        console.log(error.message);
     }
 }
 
-// const updateInvoice = async(req, res, next) => {
-//     try {
-//         const id = req.params.id;
-//         const data = req.body.purchaseOrder;
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         await invoice.update(data);
-//         res.send('Invoice record updated successfully');
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// }
-
-// const updateInvoice = async(req, res, next) => {
-//     try {
-//         const id = req.params.id;
-//         const data = req.body.purchaseOrder;
-
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         await invoice.update(data);
-//         res.send('Invoice record updated successfully');
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// }
-
-// const updateInvoice = async(req, res, next) => {
-//     try {
-//         const id = req.params.id;
-//         const data = req.body.purchaseOrder;
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         await invoice.update(data);
-//         res.send('Invoice record updated successfully');
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// }
 
 
 // ------------- Pos -----------------------------------
@@ -134,15 +69,15 @@ const getPurchaseOrder = async(req, res, next) => {
     }
 }
 
-const updatePurchaseOrder = async(req, res, next) => {
+const updatePurchaseOrder = async(_id, status) => {
     try {
-
-        await PurchaseOrder.findByIdAndUpdate(req.params.po_uid, req.body.status)
-        await PurchaseOrder.save()
-
-        res.send('Invoice record updated successfully');
+        console.log('updPo->>', _id)
+        console.log('updPo->>', status)
+        await PurchaseOrder.findOneAndUpdate({ _id }, status)
+            // await PurchaseOrder.save()
+        return ('Po record updated successfully');
     } catch (error) {
-        res.status(400).send(error.message);
+        return (error);
     }
 }
 
@@ -207,25 +142,3 @@ module.exports = {
     filterAwaitingPurchaseOrders,
     updatePurchaseOrder
 }
-
-
-
-
-
-//--------------------------------------------------------------
-// const getInvoice = async(req, res, next) => {
-//     try {
-//         const id = req.params.id;
-//         const invoice = await firestore.collection('invoices').doc(id);
-//         const data = await invoice.get();
-
-//         if (!data.exists) {
-//             res.status(404).send('Invoice with the given ID not found');
-
-//         } else {
-//             res.send(data.data())
-//         }
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// }

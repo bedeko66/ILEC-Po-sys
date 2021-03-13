@@ -9,7 +9,7 @@ from pathlib import Path
 def get_project_root() -> Path:
     return Path(__file__).parent.parent
 
-proj_path = get_project_root()
+# proj_path = get_project_root()
 # Merge po with Invoice ------------------------------
 
 def load_pdf(filename):

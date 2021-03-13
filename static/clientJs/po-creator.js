@@ -151,27 +151,17 @@ function savePo() {
     getPoTotal()
     let itemsArr = []
     let this_row
-    let item_descr;
-    let item_qty
-    let item_net
-    let item_vat
-    let item_gross
     $("#products-table tr:gt(0)").each(function() {
         this_row = $(this);
-        item_descr = $.trim(this_row.find('td:eq(0)').html());
-        item_qty = parseFloat($.trim(this_row.find('td:eq(1)').html()));
-        item_net = parseFloat($.trim(this_row.find('td:eq(2)').html()));
-        item_vat = parseFloat($.trim(this_row.find('td:eq(3)').html()));
-        item_gross = parseFloat($.trim(this_row.find('td:eq(4)').html()));
-
         itemsArr.push({
-            item_descr,
-            item_qty,
-            item_net,
-            item_vat,
-            item_gross
+            item_descr: $.trim(this_row.find('td:eq(0)').html()),
+            item_qty: parseFloat($.trim(this_row.find('td:eq(1)').html())),
+            item_net: parseFloat($.trim(this_row.find('td:eq(2)').html())),
+            item_vat: parseFloat($.trim(this_row.find('td:eq(3)').html())),
+            item_gross: parseFloat($.trim(this_row.find('td:eq(4)').html())),
         })
     });
+
     const po_ttl = parseFloat($('#po-ttl').text());
     const purchaseOrder = {
         poId: $('#po-ref').val(),
@@ -321,7 +311,6 @@ function validateDocs() {
         file_name,
         itemsArr
     }
-    console.log(purchaseOrder);
     $.ajax({
         type: "POST",
         url: '/add-purchase-order',

@@ -4,16 +4,16 @@ const DocItemSchema = new mongoose.Schema({
     item_descr: {
         type: String,
     },
-    item_gross: {
+    item_qty: {
+        type: Number,
+    },
+    item_vat: {
         type: Number,
     },
     item_net: {
         type: Number,
     },
-    item_gty: {
-        type: Number,
-    },
-    item_vat: {
+    item_gross: {
         type: Number,
     }
 
@@ -54,6 +54,13 @@ const DocumentSchema = new mongoose.Schema({
         type: String,
     },
     invoice_signed_at: {
+        type: Date,
+        default: Date.now
+    },
+    po_signed_by: {
+        type: String,
+    },
+    po_signed_at: {
         type: Date,
         default: Date.now
     },

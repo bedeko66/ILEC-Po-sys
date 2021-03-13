@@ -2,6 +2,7 @@ const _ = require('lodash')
 const { produce } = require('immer')
 
 const po = {
+    _id: 12,
     poId: 'R-25159835050',
     document_user: 'Bedekovics',
     supplier: 'li',
@@ -40,9 +41,15 @@ function convertItemsType(po) {
     })
 }
 
+function cloneExcludeId(po) {
+    return produce(po, draftPo => {
+        delete draftPo._id
+    })
+}
 
-let updated = convertItemsType(po)
-console.log(updated)
+// let updated = convertItemsType(po)
+console.log(po);
+console.log(cloneExcludeId(po))
 
 // let itemsArr_ = po.itemsArr.map(item => {
 //     item.item_qty = parseFloat(item.item_qty)

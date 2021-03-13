@@ -2,7 +2,7 @@ const fs = require('fs');
 const express = require('express');
 const purchaseOrderRouter = express.Router();
 const { checkAuthenticated } = require('../../middlewares/auth');
-const { getAllPurchaseOrders, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
+const { getAllPurchaseOrders, filterAwaitingPurchaseOrders, updatePurchaseOrder } = require('../../controllers/documentsController')
 const PurchaseOrder = require('../../models/PurchaseOrder')
 const { produce } = require('immer')
 
@@ -65,6 +65,18 @@ purchaseOrderRouter.post('/add-purchase-order', checkAuthenticated, async functi
     } catch (error) {
         res.status(500).send(error);
 
+    }
+});
+
+purchaseOrderRouter.put('/purchase-order/:po_uid', checkAuthenticated, async function(req, res) {
+    try {
+        let response = await updatePurchaseOrder(req.params.po_uid, req.body.status)
+        console.log(response);
+        res.status(200).send(response)
+
+    } catch (error) {
+        console.log(error);
+        res.render('error/500')
     }
 });
 

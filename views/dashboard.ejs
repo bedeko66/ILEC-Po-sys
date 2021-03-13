@@ -70,11 +70,10 @@
                                 </tr>
                             </thead>
                             <% invoicesToValidate.forEach(function(invoice) { %>
-                                <%if ( invoice.validated !== "true") { %>
+                                <%if ( invoice.validated !== true) { %>
                                     <tr class="center">
                                         <td>
                                             <a href="/invoice-validator/<%= invoice._id %>"><i class="bi bi-check2-circle"></i></a>
-                                            <!-- <button id="<%= invoice._id %>!<%= invoice.file_name %>" type="button" class="button file"><i class="bi bi-check2-circle"></i></button> -->
                                         </td>
                                         <td>
                                             <%= invoice.orig_file_name %>
@@ -91,7 +90,6 @@
     </div>
     <script src="../static/libs/jquery-3.6.0.min.js"></script>
     <script src="../static/libs/bootstrap/js/bootstrap.js"></script>
-    <script src="../static/clientJs/dashboard.js"></script>
 </body>
 
 </html>

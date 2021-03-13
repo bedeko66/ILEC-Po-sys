@@ -7,22 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="../static/css/fonts.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
 
     <title>Login</title>
 </head>
 
 <body>
-    <div class="container center">
-        <section class="login">
+    <div class="container center" style="margin-top: 20vh;">
+        <section class="login" style="border-radius: 50px;background:radial-gradient(black, transparent);">
             <hr class="horizontalLine">
-            <h3 class="m-3">Login with your Google account</h3>
-            <a href="/auth/google">Login with google</a>
+
+            <h3 style="margin:auto; display:block; min-height: 10vh; max-width: 40vh; text-align: center; padding-top:12px; background-color: black; color:cornsilk; border-radius: 8px;">Login</h3>
+
+            <div style="display:flex; flex-direction: column; align-items: center;">
+                <a class="btn btn-danger btn-lg" style="margin:8px; min-width: 15vw; display:inline-block;" href="/auth/google"><i class="bi bi-google"></i></a>
+            </div>
+
+            <hr class="horizontalLine">
         </section>
     </div>
 
+    <script src="../static/libs/jquery-3.6.0.min.js"></script>
+    <script src="../static/libs/bootstrap/js/bootstrap.js"></script>
 </body>
 
 </html>

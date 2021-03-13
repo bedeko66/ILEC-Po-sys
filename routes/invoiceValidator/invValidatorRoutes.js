@@ -1,20 +1,54 @@
 const fs = require('fs');
+const _ = require('lodash');
 const express = require('express');
 const invValidatorRouter = express.Router();
 const Document = require('../../models/Document')
+const PurchaseOrder = require('../../models/PurchaseOrder')
 const User = require('../../models/User')
 const { checkAuthenticated } = require('../../middlewares/auth');
-const { getAllDocuments, getDocument, getAllPurchaseOrders, filterUnValidatedInvoices, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
+const { getAllDocuments, getDocument, getAllPurchaseOrders, updateDocument, filterUnValidatedInvoices, filterAwaitingPurchaseOrders } = require('../../controllers/documentsController')
 const multer = require('multer');
+const { produce } = require('immer')
 
-function copyInvoiceToTemplates(src, dest) {
+function copyOps(src, dest) {
     fs.copyFile(src, dest, (err) => {
         if (err) { throw err } else {
             console.log(`${src} was copied to ${dest}`);
         }
     });
-    next()
 }
+
+function cloneExcludeId(po) {
+
+    const poToUpdate = {
+        document_user: po.document_user,
+        supplier: po.supplier,
+        manager: po.manager,
+        department: po.department,
+        orderDate: po.orderDate,
+        comments: po.comments,
+        status: po.status,
+        po_signed_by: po.po_signed_by,
+        po_signed_at: po.po_signed_at,
+        po_ttl: po.po_ttl,
+        file_name: po.file_name
+    }
+    let dO;
+    const u_itemsArr = po.itemsArr.map(item => {
+        dO = {
+            item_descr: item.item_descr,
+            item_qty: item.item_qty,
+            item_net: item.item_net,
+            item_vat: item.item_vat,
+            item_gross: item.item_gross
+        }
+        return dO
+    });
+    poToUpdate.itemsArr = u_itemsArr;
+
+    return poToUpdate;
+}
+
 invValidatorRouter.get('/dashboard', checkAuthenticated, async function(req, res) {
     try {
         let user = req.user;
@@ -38,6 +72,7 @@ invValidatorRouter.get('/validated-docs', checkAuthenticated, async function(req
     try {
         let user = req.user;
         const invoices = await getAllDocuments(user);
+        console.log(invoices);
         res.render('validated-docs', { user, invoices })
 
     } catch (error) {
@@ -46,34 +81,21 @@ invValidatorRouter.get('/validated-docs', checkAuthenticated, async function(req
     }
 });
 
-invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res, next) {
+invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async function(req, res) {
     try {
 
         let id = req.params.id;
-        console.log(id);
         let invoice = await getDocument(id)
-        console.log(invoice);
         let purchase_orders = await getAllPurchaseOrders(invoice.document_user)
-        console.log(purchase_orders);
         let unmatchedPos = filterAwaitingPurchaseOrders(purchase_orders)
 
         //copy invoice to templates
         let src = 'static/documents/to-validate/' + invoice.file_name;
         let dest = 'static/templates/orig_invoice.pdf';
-        copyInvoiceToTemplates(src, dest)
+        copyOps(src, dest)
 
-        const user = await User.find().where('document_user').eq(document_user)
-        console.log(user);
+        const user = await User.findOne({ lastName: { $eq: invoice.document_user } })
         res.render('invoice-validator', { user, invoice, id, unmatchedPos });
-
-        // fs.copyFile(src, dest, (err) => {
-        //     if (err) { throw err } else {
-        //         console.log(`${src} was copied to ${dest}`);
-        //         // res.status(200).send('done');
-        //     }
-        // });
-
-
 
     } catch (error) {
         console.log(error);
@@ -81,8 +103,47 @@ invValidatorRouter.get('/invoice-validator/:id', checkAuthenticated, async funct
     }
 });
 
+function convertItemsType(po) {
+    return produce(po, draftPo => {
+        if (draftPo.po_ttl) {
+            draftPo.po_ttl = parseFloat(draftPo.po_ttl)
+        }
+        if (draftPo.itemsArr) {
+            let dO;
+            draftPo.itemsArr = draftPo.itemsArr.map(item => {
+                dO = {
+                    item_descr: item.item_descr,
+                    item_qty: parseFloat(item.item_qty),
+                    item_net: parseFloat(item.item_net),
+                    item_vat: parseFloat(item.item_vat),
+                    item_gross: parseFloat(item.item_gross)
+                }
+                return dO
+            })
+        }
+
+    })
+}
+invValidatorRouter.put('/invoice/:id', checkAuthenticated, async function(req, res) {
+    try {
+        const po = convertItemsType(req.body.purchaseOrder)
+        console.log('129po', po)
+        let response = await updateDocument(req.params.id, po)
+        console.log('response from -in_upd->', response);
+
+        //copy invoice to validated
+        let src = 'static/templates/output2.pdf';
+        let dest = 'static/documents/validated/' + req.body.filename;
+        copyOps(src, dest)
+        res.status(200).send(response)
+    } catch (error) {
+        console.log(error);
+        res.render('error/500')
+    }
+});
+
 invValidatorRouter.get('/download-validated/:file_name', function(req, res) {
-    res.download(process.cwd() + '/static/validated/' + req.params.file_name, req.params.file_name);
+    res.download(process.cwd() + '/static/documents/validated/' + req.params.file_name, req.params.file_name);
 })
 
 
@@ -102,18 +163,44 @@ invValidatorRouter.post('/generate-purchase-order', function(req, res) {
 
 })
 
-invValidatorRouter.get('/merge-from-existing-purchase-order', function(req, res) {
+invValidatorRouter.post('/merge-from-existing-purchase-order', async function(req, res) {
+    try {
+        //Copy po to templates
+        let src = 'static/documents/purchase-orders/' + req.body.poId + '.pdf';
+        let dest = 'static/templates/purchase-order.pdf';
+        // fs.copyFileSync(src, dest);
+        copyOps(src, dest)
 
-    const { spawn } = require('child_process');
-    const poPdfpy = spawn('python3', [process.cwd() + '/utils/merge_from_existing_po.py']);
+        //Get po to update
+        const po = await PurchaseOrder.findById(req.body.id);
 
-    poPdfpy.stdout.on('data', function(data) {
-        console.log(data.toString());
-        res.write(data);
-        return res.end('end');
-    });
+        if (!po) {
+            console.log('Purchase Order with the given ID not found');
+        } else {
+            //Update document with po
+            const poToUpdate = cloneExcludeId(po)
+            const response = await updateDocument(req.body.invoice_id, poToUpdate)
+            console.log(response);
+            res.status(200).send(response)
 
+        }
+
+        // merge
+        const { spawn } = require('child_process');
+        const poPdfpy = spawn('python3', [process.cwd() + '/utils/merge_from_existing_po.py']);
+
+        poPdfpy.stdout.on('data', function(data) {
+            console.log(data.toString());
+            res.write(data);
+            return res.end('end');
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).send(error);
+    }
 })
+
 
 invValidatorRouter.post('/getsigno', function(req, res) {
     let signature = req.body.signo.replace(/^data:image\/png;base64,/, "");

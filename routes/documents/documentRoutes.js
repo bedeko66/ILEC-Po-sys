@@ -1,17 +1,14 @@
 const express = require('express');
 const documentRouter = express.Router();
 const { addDocument, getAllDocuments, getDocument, updateDocument, deletePo, getPurchaseOrder, updatePurchaseOrder } = require('../../controllers/documentsController');
+const { checkAuthenticated } = require('../../middlewares/auth');
 
+documentRouter.post('/invoice', checkAuthenticated, addDocument);
+documentRouter.get('/invoices', checkAuthenticated, getAllDocuments);
+documentRouter.get('/invoice/:id', checkAuthenticated, getDocument);
 
-documentRouter.post('/invoice', addDocument);
-documentRouter.get('/invoices', getAllDocuments);
-documentRouter.get('/invoice/:id', getDocument);
-documentRouter.put('/invoice/:id', updateDocument);
-
-
-documentRouter.get('/purchase-order/:id', getPurchaseOrder);
-documentRouter.delete('/delete/:id', deletePo);
-documentRouter.put('/purchase-order/:po_uid', updatePurchaseOrder);
+documentRouter.get('/purchase-order/:id', checkAuthenticated, getPurchaseOrder);
+documentRouter.delete('/delete/:id', checkAuthenticated, deletePo);
 
 
 module.exports = documentRouter;

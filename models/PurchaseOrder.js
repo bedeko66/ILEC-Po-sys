@@ -4,19 +4,18 @@ const PoItemSchema = new mongoose.Schema({
     item_descr: {
         type: String,
     },
-    item_gross: {
+    item_qty: {
         type: Number,
     },
     item_net: {
         type: Number,
     },
-    item_gty: {
-        type: Number,
-    },
     item_vat: {
         type: Number,
+    },
+    item_gross: {
+        type: Number,
     }
-
 })
 
 const PurchaseOrderSchema = new mongoose.Schema({

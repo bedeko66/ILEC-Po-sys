@@ -74,7 +74,7 @@
                                 </tr>
                             </thead>
                             <% invoices.forEach(function(invoice) { %>
-                                <%if ( invoice.validated === "yes") { %>
+                                <%if ( invoice.validated === true) { %>
                                     <tr class="center">
                                         <td>
                                             <%= invoice.orig_file_name %>
@@ -83,7 +83,7 @@
                                             <%= invoice.invoice_signed_by %>
                                         </td>
                                         <td>
-                                            <%= invoice.invoice_signed_at.split('G')[0] %>
+                                            <%= invoice.invoice_signed_at.toLocaleString() %>
                                         </td>
                                         <td>
                                             <%= invoice.file_name %>
