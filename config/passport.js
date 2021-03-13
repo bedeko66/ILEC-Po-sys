@@ -1,9 +1,16 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy
 const User = require('../models/User')
 
-const firebaseDb = require('./firebase');
-const firestore = firebaseDb.firestore();
+const authorizedUsers = require('./users.json');
+const registeredUser = (visitor) => {
+    let isRegistered = false;
 
+    authorizedUsers.forEach(user => {
+        if (user.email === visitor) return isRegistered = true;
+    });
+
+    return isRegistered;
+}
 
 module.exports = function(passport) {
 
@@ -24,14 +31,13 @@ module.exports = function(passport) {
 
             try {
                 let user = await User.findOne({ googleId: profile.id })
-
-                if (user) {
-                    done(null, user)
-                } else {
-                    user = await User.create(newUser)
-                    done(null, user)
-                }
-
+                done(null, user)
+                    // if (user) {
+                    // done(null, user)   
+                    //} //else {
+                    // user = await User.create(newUser)
+                    // done(null, user)
+                    //}
             } catch (error) {
                 console.log(error);
             }

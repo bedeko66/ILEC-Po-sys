@@ -12,6 +12,9 @@ appRouter.get('/', checkGuest, function(req, res) {
     res.render('index.ejs')
 });
 
+appRouter.get('/unauthorized', checkGuest, function(req, res) {
+    res.render('error/unauthorized')
+});
 
 appRouter.use("/auth", authRouter);
 appRouter.use("/", documentRouter);
