@@ -14,8 +14,11 @@ authRouter.get(
 )
 
 authRouter.get('/logout', (req, res) => {
-    req.logout()
-    res.redirect('/')
+    req.session.destroy(function() {
+        req.logout()
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+    });
 })
 
 

@@ -13,7 +13,10 @@ appRouter.get('/', checkGuest, function(req, res) {
 });
 
 appRouter.get('/unauthorized', checkGuest, function(req, res) {
-    res.render('error/unauthorized')
+    req.session.destroy(function() {
+        res.clearCookie('connect.sid');
+        res.render('error/unauthorized')
+    });
 });
 
 appRouter.use("/auth", authRouter);
